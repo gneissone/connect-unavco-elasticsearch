@@ -3,3 +3,8 @@
 *.bulk
 
 .idea/*
+*.pyc
+*/__pycache__
+*out.json
+*[out]
+*api_settings.json

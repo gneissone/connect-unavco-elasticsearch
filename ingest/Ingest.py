@@ -5,6 +5,9 @@ from ingestHelpers import *
 import itertools
 import json
 import requests
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.getLogger("rdflib").setLevel(logging.ERROR)
 
 class Ingest:
     """Helper class governing an ingest process."""
@@ -19,7 +22,7 @@ class Ingest:
         parser.add_argument( '--publish', default=False, action="store_true", help="publish to elasticsearch?" )
         parser.add_argument( '--rebuild', default=False, action="store_true", help="rebuild elasticsearch index?" )
         parser.add_argument( '--mapping', help="elasticsearch mapping document, e.g. mappings/dataset.json" )
-        parser.add_argument( '--sparql', default='http://deepcarbon.tw.rpi.edu:3030/VIVO/query', help='sparql endpoint' )
+        parser.add_argument( '--sparql', default='http://localhost:8080/vivo/api/sparqlQuery', help='sparql endpoint' )
         parser.add_argument( 'out', metavar='OUT', help='elasticsearch bulk ingest file')
 
         args = parser.parse_args()
@@ -60,9 +63,10 @@ class Ingest:
         ds = self.create_document( entity )
         if "dcoId" in ds and ds["dcoId"] is not None:
             return [json.dumps( get_metadata( self.get_index(), self.get_type(), (ds["dcoId"]) ) ), json.dumps(ds)]
+        elif "uri" in ds and ds["uri"] is not None:
+            return [json.dumps( get_metadata( self.get_index(), self.get_type(), (ds["uri"]) ) ), json.dumps(ds)]
         else:
             return []
-
 
     def get_entities( self ):
         """
@@ -140,4 +144,3 @@ class Ingest:
         query = load_file( self.get_describe_query_file() )
         query = query.replace( self.get_subject_name(), "<" + entity + ">" )
         return sparql_describe( self.endpoint, query )
-

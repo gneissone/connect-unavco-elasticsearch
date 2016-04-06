@@ -5,6 +5,7 @@ from itertools import chain
 import argparse
 from SPARQLWrapper import SPARQLWrapper, JSON
 import json
+import logging
 
 from rdflib import Namespace, RDF
 PROV = Namespace("http://www.w3.org/ns/prov#")
@@ -13,6 +14,7 @@ VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
 VIVO = Namespace('http://vivoweb.org/ontology/core#')
 VITRO = Namespace("http://vitro.mannlib.cornell.edu/ns/vitro/0.7#")
 OBO = Namespace("http://purl.obolibrary.org/obo/")
+EC = Namespace("https://library.ucar.edu/earthcollab/schema#")
 DCO = Namespace("http://info.deepcarbon.net/schema#")
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
@@ -23,6 +25,28 @@ from Maybe import *
 # standard filters
 non_empty_str = lambda s: True if s else False
 has_label = lambda o: True if o.label() else False
+
+log = logging.getLogger(__name__)
+
+
+def load_settings():
+    try:
+        with open('api_settings.json') as f:
+            try:
+                data = json.load(f)
+                return data
+            except Exception:
+                logging.exception("Could not load API credentials. "
+                                  "The api_settings.json file is likely "
+                                  "not formatted correctly. See "
+                                  "api_settings.json.example.")
+                raise
+    except Exception:
+        logging.exception("Could not load API credentials. "
+                          "Ensure your credentials and API stored "
+                          "correctly in api_settings.json. See "
+                          "api_settings.json.example.")
+        raise
 
 def load_file(filepath):
     """
@@ -42,9 +66,23 @@ def sparql_select(endpoint, query):
         a list of objects with its type and uri values, e.g.
             [{'dataset': {'value': 'http://...', 'type': 'uri'}}, ...]
     """
+    data = load_settings()
+    try:
+        EMAIL = data["api_user"]
+        PASSWORD = data["api_password"]
+        API_URL = data["query_api_url"]
+    except KeyError:
+        logging.exception("Could not load API credentials. "
+                          "Ensure your credentials and API stored "
+                          "correctly in api_settings.json. See "
+                          "api_settings.json.example.")
+        raise RuntimeError('Update failed. See log for details.')
     sparql = SPARQLWrapper(endpoint)
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
+    sparql.setMethod("POST")
+    sparql.addParameter("email", EMAIL)
+    sparql.addParameter("password", PASSWORD)
     results = sparql.query().convert()
     return results["results"]["bindings"]
 
@@ -57,8 +95,22 @@ def sparql_describe( endpoint, query ):
     :return:
         a json object representing the entity
     """
+    data = load_settings()
+    try:
+        EMAIL = data["api_user"]
+        PASSWORD = data["api_password"]
+        API_URL = data["query_api_url"]
+    except KeyError:
+        logging.exception("Could not load API credentials. "
+                          "Ensure your credentials and API stored "
+                          "correctly in api_settings.json. See "
+                          "api_settings.json.example.")
+        raise RuntimeError('Update failed. See log for details.')
     sparql = SPARQLWrapper( endpoint )
     sparql.setQuery( query )
+    sparql.setMethod("POST")
+    sparql.addParameter("email", EMAIL)
+    sparql.addParameter("password", PASSWORD)
     try:
         return sparql.query().convert()
     except RuntimeWarning:
@@ -184,4 +236,3 @@ def get_distributions(ds):
         distributions.append(obj)
 
     return distributions
-

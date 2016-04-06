@@ -14,4 +14,4 @@ PREFIX bibo: <http://purl.org/ontology/bibo/>
 SELECT DISTINCT ?dataset
 WHERE {
     { ?dataset a vivo:Dataset . }
-}
+} LIMIT 20

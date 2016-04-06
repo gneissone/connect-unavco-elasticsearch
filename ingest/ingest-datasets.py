@@ -118,7 +118,6 @@ class DatasetIngest(Ingest):
         # distributions: if none, will return an empty list []
         distributions = get_distributions(ds)
         doc.update({"distributions": distributions})
-
         return doc
 
 
@@ -127,4 +126,3 @@ class DatasetIngest(Ingest):
 if __name__ == "__main__":
     ingestSomething = DatasetIngest()
     ingestSomething.ingest()
-

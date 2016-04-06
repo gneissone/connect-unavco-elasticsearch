@@ -9,31 +9,27 @@ PREFIX vivo: <http://vivoweb.org/ontology/core#>
 PREFIX vitro: <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX bibo: <http://purl.org/ontology/bibo/>
+PREFIX ec: <https://library.ucar.edu/earthcollab/schema#>
 
-DESCRIBE ?dataset ?dcoid ?mostSpecificType ?label ?publicationYear ?community ?team ?project ?authorship ?author ?researchArea ?authorOrganization ?dataType ?citation ?distribution ?file ?fileURL
+DESCRIBE ?dataset ?dcoid ?mostSpecificType ?label ?publicationYear ?publicationObj ?community ?team ?project ?authorship ?author ?researchArea ?authorOrganization ?dsType ?dataType ?citation ?distribution ?file ?fileURL
 WHERE {
-  ?dataset dco:hasDcoId ?dcoid .
   ?dataset vitro:mostSpecificType ?mostSpecificType .
   ?dataset rdfs:label ?label .
-  OPTIONAL { ?dataset dco:yearOfPublication ?publicationYear . }
-  OPTIONAL { ?dataset dco:associatedDCOCommunity ?community }
-  OPTIONAL { ?dataset dco:associatedDCOTeam ?team }
-  OPTIONAL { ?dataset dco:isDatasetOf ?project }
+  OPTIONAL { 
+      ?dataset vivo:dateTimeValue ?publicationObj .
+      ?publicationObj vivo:dateTime ?publicationYear . }
   OPTIONAL {
     ?dataset vivo:relatedBy ?authorship .
     ?authorship vivo:relates ?author .
     ?author a foaf:Person .
     OPTIONAL { ?author vivo:hasResearchArea ?researchArea }
-    OPTIONAL { ?author dco:inOrganization ?authorOrganization }
+    OPTIONAL { 
+        ?author vivo:relatedBy ?position .
+        ?position vivo:relates ?authorOrganization .
+        ?authorOrganization a foaf:Organization . }
   }
-  OPTIONAL {
-        ?dataset dco:hasDistribution ?distribution .
-        ?distribution dco:hasFile ?file .
-        ?distribution rdfs:label ?distributionLabel .
-        ?distribution dco:accessURL ?distributionURL .
-        ?file rdfs:label ?fileLabel .
-        ?file dco:downloadURL ?fileURL .
-  }
-  OPTIONAL { ?dataset dco:hasDataType ?dataType }
+  OPTIONAL { 
+      ?dataset ec:hasDatasetType ?dsType .
+      ?dsType rdfs:label ?dataType . }
   OPTIONAL { ?dataset bibo:cites ?citation }
 }
