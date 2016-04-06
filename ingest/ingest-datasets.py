@@ -19,7 +19,7 @@ from Ingest import *
 LIST_QUERY_FILE = "queries/listDatasets.rq"
 DESCRIBE_QUERY_FILE = "queries/describeDataset.rq"
 SUBJECT_NAME = "?dataset"
-INDEX = "dco"
+INDEX = "unavco"
 TYPE = "dataset"
 
 # Second, extend the Ingest base class to class 'XIngest' below, where X is the singular form, with capitalized
@@ -51,7 +51,7 @@ class DatasetIngest(Ingest):
 
     def create_document( self, entity ):
         graph = self.describe_entity( entity )
-
+        #print(graph.serialize(format='turtle'))
         ds = graph.resource( entity )
 
         try:
@@ -82,11 +82,6 @@ class DatasetIngest(Ingest):
         if abstract:
             doc.update({"abstract": abstract})
 
-        publication_year = list(ds.objects(DCO.yearOfPublication))
-        publication_year = publication_year[0] if publication_year else None
-        if publication_year:
-            doc.update({"publicationYear": str(publication_year)})
-
         dco_communities = get_dco_communities(ds)
         if dco_communities:
             doc.update({"dcoCommunities": dco_communities})
@@ -114,6 +109,11 @@ class DatasetIngest(Ingest):
         # authors: if none, will return an empty list []
         authors = get_authors(ds)
         doc.update({"authors": authors})
+        
+        # date: if none, will return an empty list []
+        publication_year = get_pub_year(ds)
+        if publication_year:
+            doc.update({"publicationYear": (publication_year)})
 
         # distributions: if none, will return an empty list []
         distributions = get_distributions(ds)

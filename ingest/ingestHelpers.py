@@ -6,6 +6,7 @@ import argparse
 from SPARQLWrapper import SPARQLWrapper, JSON
 import json
 import logging
+from datetime import datetime
 
 from rdflib import Namespace, RDF
 PROV = Namespace("http://www.w3.org/ns/prov#")
@@ -18,6 +19,7 @@ EC = Namespace("https://library.ucar.edu/earthcollab/schema#")
 DCO = Namespace("http://info.deepcarbon.net/schema#")
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
+RDFS = Namespace("http://www.w3.org/ns/dcat#")
 
 # Auxilary class for those helper functions getting attributes of objects
 from Maybe import *
@@ -156,8 +158,8 @@ def get_teams(x):
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
 
 def get_data_types(x):
-    return Maybe.of(x).stream() \
-        .flatmap(lambda p: p.objects(DCO.hasDataType)) \
+     return Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(EC.hasDatasetType)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
 
@@ -208,7 +210,36 @@ def get_authors(ds):
         print("missing rank for one or more authors of:", ds)
 
     return authors
+    
+# get_authors: object -> [authors] for objects such as: datasets, publications, ...
+def get_pub_year(ds):
+    dtList = []
+    #dtObj = ds.objects(VIVO.dateTimeValue)
+    dtList = [faux for faux in ds.objects(VIVO.dateTimeValue)]
+    for dates in dtList:
+        date = str(list(dates.objects(VIVO.dateTime))[0])
 
+    #pubdate = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+    # TODO Get and return the publication date!
+
+    if date:
+        return date
+    else:
+        return None
+
+def get_data_typesasdasdad(ds):
+    dtList = []
+    dtList = [faux for faux in ds.objects(EC.hasDatasetType)]
+    for types in dtList:
+        data_type = str(list(types.objects(RDFS.label))[0])
+
+    #pubdate = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+    # TODO Get and return the publication date!
+
+    if data_type:
+        return data_type
+    else:
+        return None
 
 # get_distributions: object -> [distributions] for objects such as: datasets, publications, ...
 def get_distributions(ds):

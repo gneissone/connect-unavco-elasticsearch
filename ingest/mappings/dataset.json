@@ -197,7 +197,7 @@
         "index":"not_analyzed"
       },
       "publicationYear": {
-        "type": "string"
+        "type": "date"
       },
       "title": {
         "type": "multi_field",
