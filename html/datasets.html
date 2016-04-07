@@ -19,10 +19,10 @@
     <script type="text/javascript">
         jQuery(document).ready(function($) {
             $('.facet-view-simple').facetview({
-                search_url: '//data.deepcarbon.net/es/dco/dataset/_search',
+                search_url: 'http://localhost:9200/unavco/dataset/_search',
                 page_size: 20,
                 sort: [
-                    {"_score" : {'order' : 'asc'}}
+                    {"title.exact" : {'order' : 'asc'}}
                 ],
                 sharesave_link: true,
                 search_button: true,
@@ -30,6 +30,7 @@
                 default_facet_operator: "AND",
                 default_facet_order: "count",
                 default_facet_size: 15,
+				pushstate: false,
                 facets: [
                     /*
                     Facets to be used are listed and explained below (in real order):
@@ -71,14 +72,15 @@
                                                                                 that this dataset contains
                     ====================================================================================================
                     */
-                    {'field': 'mostSpecificType', 'display': 'Type'},
-                    {'field': 'publicationYear', 'display': 'Publication Year'},
+                    // {'field': 'mostSpecificType', 'display': 'Type'},
+                    // {'field': 'publicationYear', 'display': 'Publication Year'},
+					{'field': 'publicationYear', 'display': 'Publication Year', "type" : "date_histogram", "open" : 					false,'sort':'desc', "size" : 50},
                     {'field': 'authors.name.exact', 'size': 20, 'display': 'Author'},
-                    {'field': 'authors.organization.name.exact', 'display': 'Author Organization'},
-                    {'field': 'dcoCommunities.name.exact', 'display': 'DCO Community'},
-                    {'field': 'teams.name.exact', 'display': 'Team'},
-                    {'field': 'projects.name.exact', 'display': 'Project'},
-                    {'field': 'dataTypes.name.exact', 'display': 'Data Type'}
+                    // {'field': 'authors.organization.name.exact', 'display': 'Author Organization'},
+                    // {'field': 'dcoCommunities.name.exact', 'display': 'DCO Community'},
+                    // {'field': 'teams.name.exact', 'display': 'Team'},
+                    // {'field': 'projects.name.exact', 'display': 'Project'},
+                    {'field': 'dataTypes.name.exact', 'display': 'Dataset Type'}
                 ],
                 search_sortby: [
                     {'display':'Year','field':'publicationYear', 'order':'asc'},
@@ -108,26 +110,30 @@
                  Below are implementations of each item.
                 */
                     var doiUrl = "https://dx.doi.org/"+record["doi"];
-
-                    var datasetSummaryUrl = 'https://deepcarbon.net/dco_dataset_summary?uri=' + record["uri"];
+					var vivoUrlRoot = 'http://localhost:8080/vivo/individual?uri='
 
                     var html = "<tr><td>";
 
                     // Show DCO logo as datasets are all DCO publications
-                    html += "<img style='vertical-align: middle' src='//deepcarbon.net/sites/default/files/images/dco-icon-footer_0.png' height='15' width='15'>&nbsp;";
+                    // html += "<img style='vertical-align: middle' src='//deepcarbon.net/sites/default/files/images/dco-icon-footer_0.png' height='15' width='15'>&nbsp;";
 
                     // display title with link to dataset summary page
-                    html += "<strong><a href=\""+ datasetSummaryUrl + "\" target=\"_blank\">" + record["title"] + "</a></strong>";
+                    html += "<strong><a href=\""+ vivoUrlRoot + record["uri"] + "\" >" + record["title"] + 							"</a></strong>";
 
                     // display publicationYear
                     if (record["publicationYear"]) {
-                        html += "&emsp;<small>(" + record["publicationYear"] + ")</small>";
+						pubYear = new Date(record["publicationYear"]).getUTCFullYear();
+                        html += "&emsp;<small>(" + pubYear + ")</small>";
                     }
 
+				
+				/* ONLY display this on a main research page, not a datasets only view	
                     // display mostSpecificType
                     if (record["mostSpecificType"]) {
                         html += "<br />Type: " + record["mostSpecificType"];
-                    }
+                    } 
+			
+				*/ 
 
                     // display dcoCommunities
                     if (record["dcoCommunities"]) {
@@ -166,7 +172,11 @@
                         if (record["authors"].length != 0) {
                             html += "<br /><span><small>Authors: ";
                             for (var i = 0; i < record["authors"].length; i++) {
-                                html += "<a href=\"" + record["authors"][i]["uri"] + "\" target=\"_blank\">" + record["authors"][i]["name"] + "</a>";
+								if(record["authors"][i]["uri"]){ 
+                                html += "<a href=\"" + vivoUrlRoot + record["authors"][i]["uri"] + "\" >" + 										record["authors"][i]["name"] + "</a>"; }
+								else {
+									html += record["authors"][i]["name"]
+								}
                                 if (i < record["authors"].length - 1) {
                                     html += "; ";
                                 }
@@ -175,6 +185,22 @@
                         }
                     }
 
+                    // display related stations
+                    if (record["stations"]) {
+                        html += "<br /><span><small>Related stations: ";
+                        if (record["stations"].length == 0) {
+                            html += 'N/A'
+                        } else {
+                            for (var i = 0; i < record["stations"].length; i++) {
+                                html += "<a href=\"" + vivoUrlRoot + record["stations"][i]["uri"] + "\" >" + 										record["stations"][i]["name"] + "</a>";
+                                if (i < record["stations"].length - 1) {
+                                    html += "; ";
+                                }
+                            }
+                        }
+                        html += "</small></span>";
+                    }
+					
                     // display associated projects
                     if (record["projects"]) {
                         html += "<br /><span><small>Projects: ";
@@ -193,12 +219,12 @@
 
                     // display dataTypes
                     if (record["dataTypes"]) {
-                        html += "<br /><span><small>Has Data Types: ";
+                        html += "<br /><span><small>Dataset Type: ";
                         if (record["dataTypes"].length == 0) {
                             html += 'N/A'
                         } else {
                             for (var i = 0; i < record["dataTypes"].length; i++) {
-                                html += "<a href=\"" + record["dataTypes"][i]["uri"] + "\" target=\"_blank\">" + record["dataTypes"][i]["name"] + "</a>";
+                                html += "<a href=\"" + vivoUrlRoot + record["dataTypes"][i]["uri"] + "\" >" + record["dataTypes"][i]["name"] + "</a>";
                                 if (i < record["dataTypes"].length - 1) {
                                     html += "; ";
                                 }
@@ -209,12 +235,12 @@
 
                     // display citations
                     if (record["citations"]) {
-                        html += "<br /><span><small>Citations (Source Papers): ";
+                        html += "<br /><span><small>Related documents: ";
                         if (record["citations"].length == 0) {
                             html += 'N/A'
                         } else {
                             for (var i = 0; i < record["citations"].length; i++) {
-                                html += "<a href=\"" + record["citations"][i]["uri"] + "\" target=\"_blank\">" + record["citations"][i]["name"] + "</a>";
+                                html += "<a href=\"" + vivoUrlRoot + record["citations"][i]["uri"] + "\" >" + record["citations"][i]["name"] + "</a>";
                                 if (i < record["citations"].length - 1) {
                                     html += "; ";
                                 }
@@ -284,7 +310,7 @@
 
         .facetview_freetext.span4 {
            width: 290px;
-           height: 12px;
+           height: 18px;
         }
 
         legend {
@@ -304,6 +330,6 @@
 
 </head>
 <body>
-<div class="facet-view-simple"></div>
+<div class="facet-view-simple" style="margin:1em"></div>
 </body>
 </html>

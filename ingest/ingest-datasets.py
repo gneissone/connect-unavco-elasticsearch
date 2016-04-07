@@ -105,6 +105,11 @@ class DatasetIngest(Ingest):
         cites = get_cites(ds)
         if cites:
             doc.update({"citations": cites})
+            
+        # related stations
+        rel_stations = get_rel_stations(ds)
+        if rel_stations:
+            doc.update({"stations": rel_stations})
 
         # authors: if none, will return an empty list []
         authors = get_authors(ds)

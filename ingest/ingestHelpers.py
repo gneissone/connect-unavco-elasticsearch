@@ -20,6 +20,8 @@ DCO = Namespace("http://info.deepcarbon.net/schema#")
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
 RDFS = Namespace("http://www.w3.org/ns/dcat#")
+CITO = Namespace("http://purl.org/spar/cito/")
+VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
 
 # Auxilary class for those helper functions getting attributes of objects
 from Maybe import *
@@ -165,7 +167,13 @@ def get_data_types(x):
 
 def get_cites(x):
     return Maybe.of(x).stream() \
-        .flatmap(lambda p: p.objects(BIBO.cites)) \
+        .flatmap(lambda p: p.objects(CITO.isCitedAsDataSourceBy)) \
+        .filter(has_label) \
+        .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+        
+def get_rel_stations(x):
+    return Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(OBO.RO_0002353)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
 
@@ -180,29 +188,51 @@ def get_projects_of_dataset(x):
 def get_authors(ds):
     authors = []
     authorships = [faux for faux in ds.objects(VIVO.relatedBy) if has_type(faux, VIVO.Authorship)]
-    for authorship in authorships:
+    for authorship in authorships:  
+        author = [person for person in authorship.objects(VIVO.relates) if has_type(person, FOAF.Person)]
+        if author:
+            author = author[0]
+        vcard = [person for person in authorship.objects(VIVO.relates) if has_type(person, VCARD.Individual)]
+        if vcard:
+            vcard = vcard[0]    
+        if author:
+            name = author.label().toPython()
+            obj = {"uri": str(author.identifier), "name": name}
+            org = list(author.objects(DCO.inOrganization))
+            org = org[0] if org else None
+            if org and org.label():
+                obj.update({"organization": {"uri": str(org.identifier), "name": org.label().toPython()}})
+            research_areas = [research_area.label().toPython() for research_area in author.objects(VIVO.hasResearchArea) if research_area.label()]
+            if research_areas:
+                obj.update({"researchArea": research_areas})
+        elif vcard:
+            vList = [faux for faux in vcard.objects(VCARD.hasName)][0]
+            if list(vList.objects(VCARD.familyName)):
+                fName = str(list(vList.objects(VCARD.familyName))[0])
+            else:
+                fName = None
+            if list(vList.objects(VCARD.givenName)):
+                gName = str(list(vList.objects(VCARD.givenName))[0])
 
-        author = [person for person in authorship.objects(VIVO.relates) if has_type(person, FOAF.Person)][0]
-        name = author.label().toPython() if author else None
-
-        obj = {"uri": str(author.identifier), "name": name}
+            if fName and gName:
+                name = '{}, {}'.format(fName,gName)
+            elif fName and not gName:
+                name = '{}'.format(fName)
+            elif gName and not fName:
+                name = '{}'.format(gName)
+            else:
+                name = None
+            obj = {"uri": None, "name": name}
+        else:
+            name = None
 
         rank = list(authorship.objects(VIVO.rank))
         rank = str(rank[0].toPython()) if rank else None # added the str()
         if rank:
             obj.update({"rank": rank})
 
-        research_areas = [research_area.label().toPython() for research_area in author.objects(VIVO.hasResearchArea) if research_area.label()]
-
-        if research_areas:
-            obj.update({"researchArea": research_areas})
-
         authors.append(obj)
 
-        org = list(author.objects(DCO.inOrganization))
-        org = org[0] if org else None
-        if org and org.label():
-            obj.update({"organization": {"uri": str(org.identifier), "name": org.label().toPython()}})
 
     try:
         authors = sorted(authors, key=lambda a: a["rank"]) if len(authors) > 1 else authors

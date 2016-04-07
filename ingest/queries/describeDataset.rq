@@ -10,26 +10,34 @@ PREFIX vitro: <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX bibo: <http://purl.org/ontology/bibo/>
 PREFIX ec: <https://library.ucar.edu/earthcollab/schema#>
+PREFIX cito: <http://purl.org/spar/cito/>
+PREFIX obo:	<http://purl.obolibrary.org/obo/>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
 
-DESCRIBE ?dataset ?dcoid ?mostSpecificType ?label ?publicationYear ?publicationObj ?community ?team ?project ?authorship ?author ?researchArea ?authorOrganization ?dsType ?dataType ?citation ?distribution ?file ?fileURL
+DESCRIBE ?dataset ?dcoid ?mostSpecificType ?label ?publicationYear ?publicationObj ?community ?team ?project ?authorship ?author ?researchArea ?authorOrganization ?dsType ?dataType ?citation ?station ?vcardName
 WHERE {
   ?dataset vitro:mostSpecificType ?mostSpecificType .
   ?dataset rdfs:label ?label .
   OPTIONAL { 
       ?dataset vivo:dateTimeValue ?publicationObj .
       ?publicationObj vivo:dateTime ?publicationYear . }
-  OPTIONAL {
+  OPTIONAL { {
     ?dataset vivo:relatedBy ?authorship .
+    ?authorship a vivo:Authorship . 
     ?authorship vivo:relates ?author .
-    ?author a foaf:Person .
-    OPTIONAL { ?author vivo:hasResearchArea ?researchArea }
-    OPTIONAL { 
-        ?author vivo:relatedBy ?position .
-        ?position vivo:relates ?authorOrganization .
-        ?authorOrganization a foaf:Organization . }
-  }
+    ?author a foaf:Person . }
+    UNION {
+       ?dataset vivo:relatedBy ?authorship .
+       ?authorship a vivo:Authorship . 
+       ?authorship vivo:relates ?author .
+       ?author a vcard:Individual .
+       ?author vcard:hasName ?vcardName . } 
+    }
   OPTIONAL { 
       ?dataset ec:hasDatasetType ?dsType .
       ?dsType rdfs:label ?dataType . }
-  OPTIONAL { ?dataset bibo:cites ?citation }
+  OPTIONAL { 
+      ?dataset obo:RO_0002353 ?station .
+      ?station a ec:Station . }
+  OPTIONAL { ?dataset cito:isCitedAsDataSourceBy ?citation }
 }
