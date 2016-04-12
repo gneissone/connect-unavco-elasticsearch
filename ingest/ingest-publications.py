@@ -27,7 +27,7 @@ OBO = Namespace("http://purl.obolibrary.org/obo/")
 DCO = Namespace("http://info.deepcarbon.net/schema#")
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
 
-_index = "dco"
+_index = "unavco"
 _type = "publication"
 
 

@@ -188,7 +188,7 @@
         }
       },
       "publicationYear":{
-        "type":"string"
+        "type":"date"
       },
       "mostSpecificType": {
         "type":"string",

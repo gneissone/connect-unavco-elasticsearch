@@ -8,7 +8,12 @@ import multiprocessing
 from itertools import chain
 import functools
 import argparse
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.getLogger("rdflib").setLevel(logging.ERROR)
 
+_index = "unavco"
+_type = "person"
 
 class Maybe:
     def __init__(self, v=None):
@@ -86,9 +91,27 @@ describe_person_query = load_file("queries/describePerson.rq")
 non_empty_str = lambda s: True if s else False
 has_label = lambda o: True if o.label() else False
 
+def load_settings():
+    try:
+        with open('api_settings.json') as f:
+            try:
+                data = json.load(f)
+                return data
+            except Exception:
+                logging.exception("Could not load API credentials. "
+                                  "The api_settings.json file is likely "
+                                  "not formatted correctly. See "
+                                  "api_settings.json.example.")
+                raise
+    except Exception:
+        logging.exception("Could not load API credentials. "
+                          "Ensure your credentials and API stored "
+                          "correctly in api_settings.json. See "
+                          "api_settings.json.example.")
+        raise
 
 def get_metadata(id):
-    return {"index": {"_index": "dco", "_type": "person", "_id": id}}
+    return {"index": {"_index": _index, "_type": _type, "_id": id}}
 
 
 def get_id(dco_id):
@@ -96,18 +119,48 @@ def get_id(dco_id):
 
 
 def select(endpoint, query):
+    data = load_settings()
+    try:
+        EMAIL = data["api_user"]
+        PASSWORD = data["api_password"]
+        API_URL = data["query_api_url"]
+    except KeyError:
+        logging.exception("Could not load API credentials. "
+                          "Ensure your credentials and API stored "
+                          "correctly in api_settings.json. See "
+                          "api_settings.json.example.")
+        raise RuntimeError('Update failed. See log for details.')
     sparql = SPARQLWrapper(endpoint)
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
+    sparql.setMethod("POST")
+    sparql.addParameter("email", EMAIL)
+    sparql.addParameter("password", PASSWORD)
     results = sparql.query().convert()
     return results["results"]["bindings"]
 
 
 def describe(endpoint, query):
-    sparql = SPARQLWrapper(endpoint)
-    sparql.setQuery(query)
+    data = load_settings()
     try:
-        return sparql.query().convert()
+        EMAIL = data["api_user"]
+        PASSWORD = data["api_password"]
+        API_URL = data["query_api_url"]
+    except KeyError:
+        logging.exception("Could not load API credentials. "
+                          "Ensure your credentials and API stored "
+                          "correctly in api_settings.json. See "
+                          "api_settings.json.example.")
+        raise RuntimeError('Update failed. See log for details.')
+    sparql = SPARQLWrapper( endpoint )
+    sparql.setQuery( query )
+    sparql.setMethod("POST")
+    sparql.addParameter("email", EMAIL)
+    sparql.addParameter("password", PASSWORD)
+    try:
+        r = sparql.query().convert()
+        #print(r.serialize(format="turtle"))
+        return r
     except RuntimeWarning:
         pass
 
@@ -351,7 +404,7 @@ def publish(bulk, endpoint, rebuild, mapping):
     # if configured to rebuild_index
     # Delete and then re-create to publication index (via PUT request)
 
-    index_url = endpoint + "/dco"
+    index_url = endpoint + "/unavco/" + _type
 
     if rebuild:
         requests.delete(index_url)
@@ -362,7 +415,7 @@ def publish(bulk, endpoint, rebuild, mapping):
 
     # push current publication document mapping
 
-    mapping_url = endpoint + "/dco/person/_mapping"
+    mapping_url = endpoint + "/unavco/" + _type + "/_mapping"
     with open(mapping) as mapping_file:
         r = requests.put(mapping_url, data=mapping_file)
         if r.status_code != requests.codes.ok:
@@ -377,7 +430,7 @@ def publish(bulk, endpoint, rebuild, mapping):
                 r.raise_for_status()
 
     # bulk import new publication documents
-    bulk_import_url = endpoint + "/_bulk"
+    bulk_import_url = endpoint + "/unavco/" + _type + "/_bulk"
     r = requests.post(bulk_import_url, data=bulk)
     if r.status_code != requests.codes.ok:
         print(r.url, r.status_code)
@@ -394,11 +447,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--threads', default=8, help='number of threads to use (default = 8)')
-    parser.add_argument('--es', default="http://data.deepcarbon.net/es", help="elasticsearch service URL")
+    parser.add_argument('--es', default="http://localhost:9200", help="elasticsearch service URL")
     parser.add_argument('--publish', default=False, action="store_true", help="publish to elasticsearch?")
     parser.add_argument('--rebuild', default=False, action="store_true", help="rebuild elasticsearch index?")
     parser.add_argument('--mapping', default="mappings/person.json", help="publication elasticsearch mapping document")
-    parser.add_argument('--sparql', default='http://deepcarbon.tw.rpi.edu:3030/VIVO/query', help='sparql endpoint')
+    parser.add_argument('--sparql', default='http://localhost:8080/vivo/api/sparqlQuery', help='sparql endpoint')
     parser.add_argument('out', metavar='OUT', help='elasticsearch bulk ingest file')
 
     args = parser.parse_args()

@@ -16,6 +16,7 @@ WHERE {
     { ?publication a bibo:Article . }
     UNION { ?publication a bibo:Book . }
     UNION { ?publication a bibo:DocumentPart . }
-    UNION { ?publication a dco:Poster . }
     UNION { ?publication a bibo:Thesis . }
+    UNION { ?publication a vivo:Abstract . }
+    UNION { ?publication a vivo:ConferencePaper . }
 }

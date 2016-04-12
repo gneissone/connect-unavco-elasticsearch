@@ -116,7 +116,9 @@ def sparql_describe( endpoint, query ):
     sparql.addParameter("email", EMAIL)
     sparql.addParameter("password", PASSWORD)
     try:
-        return sparql.query().convert()
+        r = sparql.query().convert()
+        #print(r.serialize(format="turtle"))
+        return r
     except RuntimeWarning:
         pass
 
@@ -182,7 +184,18 @@ def get_projects_of_dataset(x):
         .flatmap(lambda p: p.objects(DCO.isDatasetOf)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+        
+def get_pub_venue(x):
+    return Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(VIVO.hasPublicationVenue)) \
+        .filter(has_label) \
+        .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
 
+def get_presented_at(x):
+    return Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(BIBO.presentedAt)) \
+        .filter(has_label) \
+        .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
 
 # get_authors: object -> [authors] for objects such as: datasets, publications, ...
 def get_authors(ds):
@@ -213,6 +226,8 @@ def get_authors(ds):
                 fName = None
             if list(vList.objects(VCARD.givenName)):
                 gName = str(list(vList.objects(VCARD.givenName))[0])
+            else:
+                gName = None
 
             if fName and gName:
                 name = '{}, {}'.format(fName,gName)
@@ -244,13 +259,12 @@ def get_authors(ds):
 # get_authors: object -> [authors] for objects such as: datasets, publications, ...
 def get_pub_year(ds):
     dtList = []
+    date = None
     #dtObj = ds.objects(VIVO.dateTimeValue)
     dtList = [faux for faux in ds.objects(VIVO.dateTimeValue)]
     for dates in dtList:
-        date = str(list(dates.objects(VIVO.dateTime))[0])
-
-    #pubdate = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-    # TODO Get and return the publication date!
+        date = list(dates.objects(VIVO.dateTime))
+        date = str(date[0]) if date else None
 
     if date:
         return date
@@ -270,6 +284,19 @@ def get_data_typesasdasdad(ds):
         return data_type
     else:
         return None
+        
+        
+def get_subject_areas(ds):
+    subject_areas = []
+    for subject_area in ds.objects(VIVO.hasSubjectArea):
+        sa = {"uri": str(subject_area.identifier)}
+        if subject_area.label():
+            sa.update({"name": subject_area.label().toPython()})
+        subject_areas.append(sa)
+
+
+    return subject_areas
+    
 
 # get_distributions: object -> [distributions] for objects such as: datasets, publications, ...
 def get_distributions(ds):

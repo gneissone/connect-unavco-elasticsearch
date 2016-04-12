@@ -142,5 +142,5 @@ class Ingest:
     # describe_entity: helper function for create_document
     def describe_entity( self, entity ):
         query = load_file( self.get_describe_query_file() )
-        query = query.replace( self.get_subject_name(), "<" + entity + ">" )
+        query = query.replace( self.get_subject_name() + ' ', "<" + entity + "> " )
         return sparql_describe( self.endpoint, query )

@@ -9,19 +9,32 @@ PREFIX vivo: <http://vivoweb.org/ontology/core#>
 PREFIX vitro: <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX bibo: <http://purl.org/ontology/bibo/>
+PREFIX ec: <https://library.ucar.edu/earthcollab/schema#>
+PREFIX cito: <http://purl.org/spar/cito/>
+PREFIX obo:	<http://purl.obolibrary.org/obo/>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
 
-DESCRIBE ?publication ?dcoid ?mostSpecificType ?subjectArea ?venue ?event ?community ?team ?authorship ?author ?researchArea ?authorOrganization
-WHERE {
-  ?publication dco:hasDcoId ?dcoid .
+DESCRIBE ?publication ?dcoid ?mostSpecificType ?subjectArea ?venue ?event ?community ?team ?authorship ?author ?researchArea ?vcardName ?publicationYear ?publicationObj ?citation
+  WHERE { 
   ?publication vitro:mostSpecificType ?mostSpecificType .
-  OPTIONAL { ?publication dco:associatedDCOCommunity ?community }
-  OPTIONAL { ?publication dco:associatedDCOTeam ?team }
+  ?publication rdfs:label ?label .
+  OPTIONAL { 
+      ?publication vivo:dateTimeValue ?publicationObj .
+      ?publicationObj vivo:dateTime ?publicationYear . }
   OPTIONAL { ?publication bibo:presentedAt ?event }
   OPTIONAL { ?publication vivo:hasPublicationVenue ?venue }
   OPTIONAL { ?publication vivo:hasSubjectArea ?subjectArea }
-  OPTIONAL { ?publication vivo:relatedBy ?authorship .
+  OPTIONAL { {
+    ?publication vivo:relatedBy ?authorship .
+    ?authorship a vivo:Authorship . 
     ?authorship vivo:relates ?author .
-    ?author a foaf:Person .
-    OPTIONAL { ?author vivo:hasResearchArea ?researchArea }
-    OPTIONAL { ?author dco:inOrganization ?authorOrganization } }
+    ?author a foaf:Person . }
+    UNION {
+       ?publication vivo:relatedBy ?authorship .
+       ?authorship a vivo:Authorship . 
+       ?authorship vivo:relates ?author .
+       ?author a vcard:Individual .
+       ?author vcard:hasName ?vcardName . } 
+    }
+  OPTIONAL { ?publication cito:citesAsDataSource ?citation }
 }
