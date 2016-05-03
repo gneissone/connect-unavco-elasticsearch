@@ -4,42 +4,45 @@
     <meta charset="UTF-8">
     <title>Publication Browser</title>
 
-    <script type="text/javascript" src="/vivo/themes/dco/js/facetview2/vendor/jquery/1.7.1/jquery-1.7.1.min.js"></script>
-    <link rel="stylesheet" href="/vivo/themes/dco/js/facetview2/vendor/bootstrap/css/bootstrap.min.css">
-    <script type="text/javascript" src="/vivo/themes/dco/js/facetview2/vendor/bootstrap/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="/vivo/themes/dco/js/facetview2/vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.css">
-    <script type="text/javascript" src="/vivo/themes/dco/js/facetview2/vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.min.js"></script>
+    <script type="text/javascript" src="facetview2/vendor/jquery/1.7.1/jquery-1.7.1.min.js"></script>
+    <link rel="stylesheet" href="facetview2/vendor/bootstrap/css/bootstrap.min.css">
+    <script type="text/javascript" src="facetview2/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="facetview2/vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.css">
+    <script type="text/javascript" src="facetview2/vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.min.js"></script>
 
-    <script type="text/javascript" src="/vivo/themes/dco/js/facetview2/es.js"></script>
-    <script type="text/javascript" src="/vivo/themes/dco/js/facetview2/bootstrap2.facetview.theme.js"></script>
-    <script type="text/javascript" src="/vivo/themes/dco/js/facetview2/jquery.facetview2.js"></script>
-    <link rel="stylesheet" href="/vivo/themes/dco/js/facetview2/css/facetview.css">
-    <link rel="stylesheet" href="/vivo/themes/dco/css/browsers.css">
+    <script type="text/javascript" src="facetview2/es.js"></script>
+    <script type="text/javascript" src="facetview2/bootstrap2.facetview.theme.js"></script>
+    <script type="text/javascript" src="facetview2/jquery.facetview2.js"></script>
+    <link rel="stylesheet" href="facetview2/css/facetview.css">
+    <link rel="stylesheet" href="browsers.css">
 
     <script type="text/javascript">
         jQuery(document).ready(function($) {
             $('.facet-view-simple').facetview({
-                search_url: '//data.deepcarbon.net/es/dco/publication/_search',
-                page_size: 20,
-                sort: [{"_score" : {"order" : "desc"}}],
+                search_url: 'http://localhost:9200/unavco/publication/_search',
+                //page_size: 120, // Will be added to page_size_options if not included in that array
+				page_size_dropdown : true,
+				page_size_options: [20,50,100,250], 
+                sort: [{"publicationYear" : {"order" : "desc"}}],
                 sharesave_link: true,
-                search_button: true,
+                search_button: false,
                 default_freetext_fuzzify: "*",
                 default_facet_operator: "AND",
                 default_facet_order: "count",
                 default_facet_size: 15,
+				pushstate: false,
                 facets: [
                     {'field': 'mostSpecificType', 'display': 'Type'},
-                    {'field': 'community.name.exact', 'display': 'DCO Community'},
-                    {'field': 'team.name.exact', 'display': 'DCO Team'},
+                    // {'field': 'community.name.exact', 'display': 'DCO Community'},
+                    // {'field': 'team.name.exact', 'display': 'DCO Team'},
                     {'field': 'subjectArea.name.exact', 'display': 'Subject Area'},
                     {'field': 'authors.name.exact', 'size': 20, 'display': 'Author'},
-                    {'field': 'publicationYear', 'display': 'Publication Year'},
-                    {'field': 'publishedIn.name.exact', 'display': 'Published In'},
-                    {'field': 'presentedAt.name.exact', 'display': 'Presented At Event'},
-                    {'field': 'authors.organization.name.exact', 'display': 'Author Organization'},
+                    {'field': 'publicationYear', 'display': 'Publication Year', "type" : "date_histogram", "open" : 				 						false,'sort':'desc', "size" : 50},
+                    {'field': 'publishedIn.name.exact', 'display': 'Published in'},
+                    {'field': 'presentedAt.name.exact', 'display': 'Presented at Event'},
+                    // {'field': 'authors.organization.name.exact', 'display': 'Author Organization'},
                     {'field': 'authors.researchArea.exact', 'display': 'Author Research Area'},
-                    {'field': 'isDcoPublication', 'display': 'Only show contributions to the DCO'}
+                   // {'field': 'isDcoPublication', 'display': 'Only show contributions to the DCO'}
                 ],
                 search_sortby: [
                     {'display':'Title','field':'title.exact'},
@@ -49,51 +52,90 @@
                 {
 
                     var doiUrl = "https://dx.doi.org/"+record["doi"];
+					var vivoUrlRoot = 'http://localhost:8080/vivo/individual?uri='
 
                     var html = "<tr><td>";
-                    
-                    if (record["isDcoPublication"]) {
-                        html += "<img style='vertical-align: middle' src='//deepcarbon.net/sites/default/files/images/dco-icon-footer_0.png' height='15' width='15'>&nbsp;";
-                    }
+				
+					// title and link to vivo page
+                    html += "<strong><a href=\""+ vivoUrlRoot + record["uri"] + "\" >" + record["title"] + 							"</a></strong>";
 
-                    if (record["doi"]) {
-                        html += "<strong><a href=\""+doiUrl+"\" target=\"_blank\">" + record["title"] + "</a></strong>";
-                    } else {
-                        html += "<strong>" + record["title"] + "</strong>";
-                    }
-
+                    // display publicationYear
                     if (record["publicationYear"]) {
-                        html += "&emsp;<small>(" + record["publicationYear"] + ")</small>";
+						pubYear = new Date(record["publicationYear"]).getUTCFullYear();
+                        html += "&emsp;<small>(" + pubYear + ")</small>";
                     }
 
                     if (record["mostSpecificType"]) {
                         html += "<br />Type: " + record["mostSpecificType"];
                     }
 
-                    if (record["community"]) {
+                  /*  if (record["community"]) {
                         html += "<br /><span>Community: <a href=\"" + record["community"]["uri"] + "\" target=\"_blank\">" + record["community"]["name"] + "</a></span>";
                     }
 
                     if (record["team"]) {
                         html += "<br /><span>Team: <a href=\"" + record["team"]["uri"] + "\" target=\"_blank\">" + record["team"]["name"] + "</a></span>";
+                    } */
+
+                    // display authors
+                    if (record["authors"]) {
+                        if (record["authors"].length != 0) {
+                            html += "<br /><span><small>Authors: ";
+                            for (var i = 0; i < record["authors"].length; i++) {
+								if(record["authors"][i]["uri"]){ 
+                                html += "<a href=\"" + vivoUrlRoot + record["authors"][i]["uri"] + "\" >" + 										record["authors"][i]["name"] + "</a>"; }
+								else {
+									html += record["authors"][i]["name"]
+								}
+                                if (i < record["authors"].length - 1) {
+                                    html += "; ";
+                                }
+                            }
+                            html += "</small></span>";
+                        }
+                    }
+					
+                    // display publication venue
+                    if (record["publishedIn"]) {
+                        if (record["publishedIn"].length != 0) {
+                            html += "<br /><span><small>Published In: ";
+                            for (var i = 0; i < record["publishedIn"].length; i++) {
+								if(record["publishedIn"][i]["uri"]){ 
+                                html += "<a href=\"" + vivoUrlRoot + record["publishedIn"][i]["uri"] + "\" >" + 										record["publishedIn"][i]["name"] + "</a>"; }
+								else {
+									html += record["publishedIn"][i]["name"]
+								}
+                                if (i < record["publishedIn"].length - 1) {
+                                    html += "; ";
+                                }
+                            }
+                            html += "</small></span>";
+                        }
                     }
 
-                    if (record["authors"]) {
-                        html += "<br /><span><small>Authors: ";
-                        for (var i = 0; i < record["authors"].length; i++) {
-                            html += "<a href=\"" + record["authors"][i]["uri"] + "\" target=\"_blank\">" + record["authors"][i]["name"] + "</a>";
-                            if (i < record["authors"].length - 1) {
-                                html += "; ";
+                    // display conference
+                    if (record["presentedAt"]) {
+                        if (record["presentedAt"].length != 0) {
+                            html += "<br /><span><small>Presented at: ";
+                            for (var i = 0; i < record["presentedAt"].length; i++) {
+								if(record["presentedAt"][i]["uri"]){ 
+                                html += "<a href=\"" + vivoUrlRoot + record["presentedAt"][i]["uri"] + "\" >" + 										record["presentedAt"][i]["name"] + "</a>"; }
+								else {
+									html += record["presentedAt"][i]["name"]
+								}
+                                if (i < record["presentedAt"].length - 1) {
+                                    html += "; ";
+                                }
                             }
+                            html += "</small></span>";
                         }
-                        html += "</small></span>";
-                    }
+                    }					
 
                     if (record["subjectArea"]) {
                         html += "<br /><span>Subject Areas: ";
 
                         for(var i = 0; i < record["subjectArea"].length; i++) {
-                            html += "<a href=\"" + record["subjectArea"][i]["uri"] + "\" target=\"_blank\">" + record["subjectArea"][i]["name"] + "</a>";
+                            html += "<a href=\"" + vivoUrlRoot + record["subjectArea"][i]["uri"] + "\" target=\"_blank\">" + record["subjectArea"][i]["name"] + "</a>";
                             if (i < record["subjectArea"].length - 1) {
                                 html += "; ";
                             }
@@ -102,13 +144,7 @@
                         html += "</span>"
                     }
 
-                    if(record["publishedIn"]) {
-                        html += "<br /><span>Published in: <a href=\""+record["publishedIn"]["uri"]+"\" target=\"_blank\">"+record["publishedIn"]["name"]+"</a></span>";
-                    }
 
-                    if (record["presentedAt"]) {
-                        html += "<br /><span>Presented at: <a href=\""+record["presentedAt"]["uri"]+"\" target=\"_blank\">"+record["presentedAt"]["name"]+"</a></span>";
-                    }
 
                     // Badges
 
@@ -119,8 +155,7 @@
                         html += "<a href=\"" + doiUrl + "\" target=\"_blank\"><img style='vertical-align: middle' src='//dcotest.tw.rpi.edu/badges/badge?title=DOI&text="+escapedDOI+"&color=66CCFF'/></a>&emsp;";
                     }
 
-                    var escapedDCOId= encodeURIComponent(record["dcoId"]);
-                    html += "<a href=\"https://dx.deepcarbon.net/"+record["dcoId"]+"\" target=\"_blank\"><img style='vertical-align: middle' src='//dcotest.tw.rpi.edu/badges/badge?title=metadata&text="+escapedDCOId+"&color=D14719'/></a>";
+                  
 
                     html += "</td></tr>";
                     return html;
@@ -128,38 +163,7 @@
                 selected_filters_in_facet: true,
                 show_filter_field : true,
                 show_filter_logic: true,
-                post_init_callback: function(options, context) {
-                    // on initial load activate the isDcoPublication filter
-                    options.active_filters = {'isDcoPublication': ['T']};
 
-                    // add the 'dco publication' checkbox to the UI
-                    $(".facetview_search_options_container")
-                            .after("<input id='is-dco-publication-checkbox' type='checkbox'>&nbsp;Only show contributions to the DCO</input>&nbsp;<img style='vertical-align: middle' src='//deepcarbon.net/sites/default/files/images/dco-icon-footer_0.png' height='15' width='15'>");
-
-                    // set checkbox to control isDcoPublication filter on selection/deselection
-                    $("#is-dco-publication-checkbox")
-                            .change(function() {
-                                if(this.checked) {
-                                    $("a.facetview_filterchoice[data-field='isDcoPublication'][data-value='T']").click();
-                                } else {
-
-                                    $("a.facetview_clear[data-field='isDcoPublication'][data-value='T']").click();
-                                }
-                            });
-                },
-                post_render_callback: function(options, context) {
-                    if(options.active_filters["isDcoPublication"] != null) {
-                        // if the isDcoPublication filter is active set ensure the checkbox is checked
-                        $("#is-dco-publication-checkbox").attr("checked", true);
-                    } else if (!$("a.facetview_filterchoice[data-field='isDcoPublication'][data-value='T']").length) {
-                        // if the isDcoPublication filter is not active and is not a valid option
-                        // (there are no remaining DCO publications in the result set) then disable the checkbox
-                        $("#is-dco-publication-checkbox").attr("disabled", true);
-                    } else {
-                        // if the isDcoPublication filter is not active is a valid option ensure it is enabled
-                        $("#is-dco-publication-checkbox").attr("disabled", false);
-                    }
-                }
             });
         });
 
@@ -167,17 +171,17 @@
 
     <style type="text/css">
 
-        @import url("/vivo/themes/dco/css/wilma.css") body;
+        @import url("http://localhost:8080/vivo/themes/wilma_unavco/css/wilma.css") body;
 
         .facet-view-simple{
-            width:100%;
+            width:95%;
             height:100%;
             margin:20px auto 0 auto;
         }
 
         .facetview_freetext.span4 {
            width: 290px;
-           height: 12px;
+           height: 18px;
         }
 
         legend {

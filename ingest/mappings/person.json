@@ -1,39 +1,6 @@
-{
-  "person": {
+{ 	
+	 "person": {
     "properties": {
-      "dcoCommunities": {
-        "properties": {
-          "community": {
-            "properties": {
-              "name": {
-                "type": "multi_field",
-                "fields": {
-                  "name": {
-                    "type": "string",
-                    "index": "analyzed"
-                  },
-                  "exact": {
-                    "type": "string",
-                    "index": "not_analyzed"
-                  }
-                }
-              },
-              "uri": {
-                "type": "string",
-                "index": "no"
-              }
-            }
-          },
-          "commrole": {
-            "type": "string",
-            "index": "analyzed"
-          }
-        }
-      },
-      "dcoId": {
-        "type": "string",
-        "index": "no"
-      },
       "email": {
         "type": "string",
         "index": "not_analyzed"
@@ -67,7 +34,11 @@
           "exact": {
             "type": "string",
             "index": "not_analyzed"
-          }
+          },
+				  "sort": {
+					  "type": "string",
+					  "analyzer": "ducet_sort"
+				  }
         }
       },
       "orcid": {
@@ -174,6 +145,27 @@
           }
         }
       },
+      "expertiseArea": {
+        "properties": {
+          "name": {
+            "type": "multi_field",
+            "fields": {
+              "name": {
+                "type": "string",
+                "index": "analyzed"
+              },
+              "exact": {
+                "type": "string",
+                "index": "not_analyzed"
+              }
+            }
+          },
+          "uri": {
+            "type": "string",
+            "index": "no"
+          }
+        }
+      },
       "thumbnail": {
         "type": "string",
         "index": "no"
@@ -183,5 +175,6 @@
         "index": "no"
       }
     }
-  }
+  }	  
+
 }

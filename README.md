@@ -88,6 +88,11 @@ Documentation on ES schemas and how a mapping can be customized are available at
 
 The ingest scripts will push a customized mapping during the publish phase if --mapping is specified with a path to the mapping file.
 
+Mapping files may contain references to custom analyzers, which tell Elasticsearch how to index text. The person.json map requires a 'sort' type, which has been set up at Connect UNAVCO to use the [ICU analyzer](https://github.com/elastic/elasticsearch-analysis-icu). 1. Install the plugin following instructions on the ICU analyzer GitHub page
+2. Close the index with `curl -XPOST 'localhost:9200/unavco/_close'` 
+3. Import the analyzer settings located in config/settings.json with `curl -XPUT 'localhost:9200/unavco/_settings?pretty' --data-binary @config/settings.json` 
+4. Re-open the index with `curl -XPOST 'localhost:9200/unavco/_open'` 
+
 ### Setting up the faceted browser
 
 Embedding a faceted browser in a webpage is very simple.

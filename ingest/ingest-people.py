@@ -82,6 +82,7 @@ VITRO_PUB = Namespace("http://vitro.mannlib.cornell.edu/ns/vitro/public#")
 OBO = Namespace("http://purl.obolibrary.org/obo/")
 DCO = Namespace("http://info.deepcarbon.net/schema#")
 FOAF = Namespace("http://xmlns.com/foaf/0.1/")
+VLOCAL = Namespace("http://connect.unavco.org/ontology/vlocal#")
 NET_ID = Namespace("http://vivo.mydomain.edu/ns#")
 
 get_people_query = load_file("queries/listPeople.rq")
@@ -246,6 +247,12 @@ def get_research_areas(person):
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
 
+def get_expertise_areas(person):
+    return Maybe.of(person).stream() \
+        .flatmap(lambda p: p.objects(VLOCAL.hasExpertise)) \
+        .filter(has_label) \
+        .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+
 
 def get_organizations(person):
     orgs = []
@@ -369,22 +376,14 @@ def create_person_doc(person, endpoint):
     research_areas = get_research_areas(per)
     if research_areas:
         doc.update({"researchArea": research_areas})
-
-    home_country = get_home_country(per)
-    if home_country:
-        doc.update({"homeCountry": home_country})
+        
+    expertise_areas = get_expertise_areas(per)
+    if expertise_areas:
+        doc.update({"expertiseArea": expertise_areas})
 
     organizations = get_organizations(per)
     if organizations:
         doc.update({"organizations": organizations})
-
-    teams = get_teams(per)
-    if teams:
-        doc.update({"teams": teams})
-
-    dco_communities = get_dco_communities(per)
-    if dco_communities:
-        doc.update({"dcoCommunities": dco_communities})
 
     thumbnail = get_thumbnail(per)
     if thumbnail:
