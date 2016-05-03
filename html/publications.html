@@ -4,16 +4,17 @@
     <meta charset="UTF-8">
     <title>Publication Browser</title>
 
-    <script type="text/javascript" src="facetview2/vendor/jquery/1.7.1/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="facetview2/vendor/jquery/1.12.3/jquery-1.12.3.min.js"></script>
     <link rel="stylesheet" href="facetview2/vendor/bootstrap/css/bootstrap.min.css">
     <script type="text/javascript" src="facetview2/vendor/bootstrap/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="facetview2/vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.css">
-    <script type="text/javascript" src="facetview2/vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.min.js"></script>
+    <!-- ><link rel="stylesheet" href="facetview2/vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.css">
+    <script type="text/javascript" src="facetview2/vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.min.js"></script> -->
 
     <script type="text/javascript" src="facetview2/es.js"></script>
-    <script type="text/javascript" src="facetview2/bootstrap2.facetview.theme.js"></script>
+    <script type="text/javascript" src="facetview2/bootstrap3.facetview.theme.js"></script>
     <script type="text/javascript" src="facetview2/jquery.facetview2.js"></script>
     <link rel="stylesheet" href="facetview2/css/facetview.css">
+			<link rel="stylesheet" href="facetview2/css/style.css">
     <link rel="stylesheet" href="browsers.css">
 
     <script type="text/javascript">
@@ -25,23 +26,23 @@
 				page_size_options: [20,50,100,250], 
                 sort: [{"publicationYear" : {"order" : "desc"}}],
                 sharesave_link: true,
-                search_button: false,
+                search_button: true,
                 default_freetext_fuzzify: "*",
                 default_facet_operator: "AND",
                 default_facet_order: "count",
-                default_facet_size: 15,
+                default_facet_size: 10,
 				pushstate: false,
                 facets: [
-                    {'field': 'mostSpecificType', 'display': 'Type'},
+                    {'field': 'mostSpecificType', 'display': 'Type', 'controls': false},
                     // {'field': 'community.name.exact', 'display': 'DCO Community'},
                     // {'field': 'team.name.exact', 'display': 'DCO Team'},
-                    {'field': 'subjectArea.name.exact', 'display': 'Subject Area'},
+                    {'field': 'subjectArea.name.exact', 'display': 'Subject Area', 'controls': false},
                     {'field': 'authors.name.exact', 'size': 20, 'display': 'Author'},
                     {'field': 'publicationYear', 'display': 'Publication Year', "type" : "date_histogram", "open" : 				 						false,'sort':'desc', "size" : 50},
-                    {'field': 'publishedIn.name.exact', 'display': 'Published in'},
-                    {'field': 'presentedAt.name.exact', 'display': 'Presented at Event'},
+                    {'field': 'publishedIn.name.exact', 'display': 'Published in', 'controls': false},
+                    {'field': 'presentedAt.name.exact', 'display': 'Presented at Event', 'controls': false},
                     // {'field': 'authors.organization.name.exact', 'display': 'Author Organization'},
-                    {'field': 'authors.researchArea.exact', 'display': 'Author Research Area'},
+                    {'field': 'authors.researchArea.exact', 'display': 'Author Research Area', 'controls': false},
                    // {'field': 'isDcoPublication', 'display': 'Only show contributions to the DCO'}
                 ],
                 search_sortby: [
