@@ -13,7 +13,7 @@
     <script type="text/javascript" src="facetview2/bootstrap3.facetview.theme.js"></script>
     <script type="text/javascript" src="facetview2/jquery.facetview2.js"></script>
     <link rel="stylesheet" href="facetview2/css/facetview.css">
-	<link rel="stylesheet" href="facetview2/css/style.css">
+    <link rel="stylesheet" href="facetview2/css/style.css">
     <link rel="stylesheet" href="browsers.css">
 
     <script id="person-template" type="text/x-handlebars-template">
@@ -113,23 +113,23 @@
                 ],
                 sharesave_link: true,
                 search_button: true,
-				        page_size_dropdown: true,
+                page_size_dropdown: true,
                 default_freetext_fuzzify: "*",
                 default_facet_operator: "AND",
                 default_facet_order: "count",
                 default_facet_size: 5,
                 controls: false,
-				        pushstate: false,
+                pushstate: false,
                 facets: [
                     {"field": "mostSpecificType.exact", "display": "UNAVCO role", "open": true, "controls": false},
                     // {"field": "organizations.organization.name.exact", "display": "Organization"},
                     {"field": "researchArea.name.exact", "display": "Research area", "open": true, "controls": false},
-					          {"field": "expertiseArea.name.exact", "display": "Expertise area", "open": true, "controls": false},
+                    {"field": "expertiseArea.name.exact", "display": "Expertise area", "open": true, "controls": false},
                 ],
                 search_sortby: [
                     {'display':'Name','field':'name.sort'}
                 ],
-                // TODO FIGURE OUT WHAT THE F%@*&! DIFFERENCE IS 
+                // TODO Figure out the difference? 
                 facetview_orderby: [
                     {'display':'Name','field':'name.exact'}
                 ],

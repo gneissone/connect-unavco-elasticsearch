@@ -14,7 +14,7 @@
     <script type="text/javascript" src="facetview2/bootstrap3.facetview.theme.js"></script>
     <script type="text/javascript" src="facetview2/jquery.facetview2.js"></script>
     <link rel="stylesheet" href="facetview2/css/facetview.css">
-			<link rel="stylesheet" href="facetview2/css/style.css">
+    <link rel="stylesheet" href="facetview2/css/style.css">
     <link rel="stylesheet" href="browsers.css">
 
     <script type="text/javascript">
@@ -22,8 +22,8 @@
             $('.facet-view-simple').facetview({
                 search_url: 'http://localhost:9200/unavco/publication/_search',
                 //page_size: 120, // Will be added to page_size_options if not included in that array
-				page_size_dropdown : true,
-				page_size_options: [20,50,100,250], 
+                page_size_dropdown : true,
+                page_size_options: [20,50,100,250], 
                 sort: [{"publicationYear" : {"order" : "desc"}}],
                 sharesave_link: true,
                 search_button: true,
@@ -54,16 +54,16 @@
                 {
 
                     var doiUrl = "https://dx.doi.org/"+record["doi"];
-					var vivoUrlRoot = 'http://localhost:8080/vivo/individual?uri='
+                    var vivoUrlRoot = 'http://localhost:8080/vivo/individual?uri='
 
                     var html = "<tr><td>";
 				
-					// title and link to vivo page
+                    // title and link to vivo page
                     html += "<strong><a href=\""+ vivoUrlRoot + record["uri"] + "\" >" + record["title"] + 							"</a></strong>";
 
                     // display publicationYear
                     if (record["publicationYear"]) {
-						pubYear = new Date(record["publicationYear"]).getUTCFullYear();
+                        pubYear = new Date(record["publicationYear"]).getUTCFullYear();
                         html += "&emsp;<small>(" + pubYear + ")</small>";
                     }
 
