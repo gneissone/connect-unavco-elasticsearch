@@ -1,5 +1,5 @@
-# dco-elasticsearch
-DCO Faceted Search using ElasticSearch
+# connect-unavco-elasticsearch
+Faceted Search using ElasticSearch for [Connect UNAVCO](http://connect.unavco.org), based on  [dco-elasticsearch](https://github.com/tetherless-world/dco-elasticsearch)
 
 ## Overview
 
@@ -92,6 +92,8 @@ Mapping files may contain references to custom analyzers, which tell Elasticsear
 2. Close the index with `curl -XPOST 'localhost:9200/unavco/_close'` 
 3. Import the analyzer settings located in config/settings.json with `curl -XPUT 'localhost:9200/unavco/_settings?pretty' --data-binary @config/settings.json` 
 4. Re-open the index with `curl -XPOST 'localhost:9200/unavco/_open'` 
+
+Likewise, the publication.json mapping file references a 'folding' analyzer, which is also defined in settings.json. The asciifolding filter it uses is built into elasticsearch already.
 
 ### Setting up the faceted browser
 

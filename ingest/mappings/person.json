@@ -38,7 +38,12 @@
 				  "sort": {
 					  "type": "string",
 					  "analyzer": "ducet_sort"
-				  }
+				  },
+          "folded":{
+            "type":"string",
+            "analyzer":"folding",
+						"index":"analyzed"
+          }
         }
       },
       "orcid": {
