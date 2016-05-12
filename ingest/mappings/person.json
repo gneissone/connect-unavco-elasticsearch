@@ -35,14 +35,14 @@
             "type": "string",
             "index": "not_analyzed"
           },
-				  "sort": {
-					  "type": "string",
-					  "analyzer": "ducet_sort"
-				  },
+          "sort": {
+            "type": "string",
+            "analyzer": "ducet_sort"
+          },
           "folded":{
             "type":"string",
             "analyzer":"folding",
-						"index":"analyzed"
+            "index":"analyzed"
           }
         }
       },

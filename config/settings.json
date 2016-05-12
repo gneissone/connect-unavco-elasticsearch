@@ -1,16 +1,16 @@
-{ 
-	"settings": {
-	    "analysis": {
-	      "analyzer": {
-	        "ducet_sort": {
-	          "tokenizer": "keyword",
-	          "filter": [ "icu_collation" ] 
-	        },
-				  "folding": {
-				    "tokenizer": "standard",
-				    "filter":  [ "lowercase", "asciifolding" ]
-				}
-	    }
-	  }
-  }
+{  
+   "settings":{  
+      "analysis":{  
+         "analyzer":{  
+            "ducet_sort":{  
+               "tokenizer":"keyword",
+               "filter":[ "icu_collation" ]
+            },
+            "folding":{  
+               "tokenizer":"standard",
+               "filter":[ "lowercase", "asciifolding" ]
+            }
+         }
+      }
+   }
 }

@@ -38,7 +38,7 @@
               "folded":{
                 "type":"string",
                 "analyzer":"folding",
-								"index":"analyzed"
+                "index":"analyzed"
               }							
             }
           },
@@ -131,7 +131,7 @@
       "amscore":{
         "type":"float",
         "index": "not_analyzed",
-				"null_value" : 0
+        "null_value" : 0
       },			
       "isDcoPublication":{
         "type":"boolean"
