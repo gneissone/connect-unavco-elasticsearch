@@ -6,6 +6,7 @@ import itertools
 import json
 import requests
 import logging
+from logging import handlers
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("rdflib").setLevel(logging.ERROR)
 
@@ -22,10 +23,46 @@ class Ingest:
         parser.add_argument( '--publish', default=False, action="store_true", help="publish to elasticsearch?" )
         parser.add_argument( '--rebuild', default=False, action="store_true", help="rebuild elasticsearch index?" )
         parser.add_argument( '--mapping', help="elasticsearch mapping document, e.g. mappings/dataset.json" )
-        parser.add_argument( '--sparql', default='http://localhost:8080/vivo/api/sparqlQuery', help='sparql endpoint' )
+        parser.add_argument("--debug", action="store_true", help="Set logging "
+                            "level to DEBUG.")   
+        parser.add_argument("--altmetric", default=False, action="store_true", 
+                            help="Attempt to grab Altmetric scores for DOIs.")  
+        parser.add_argument( '--sparql', default='http://vivodev.int.unavco.org/vivo/api/sparqlQuery', help='sparql endpoint' )
         parser.add_argument( 'out', metavar='OUT', help='elasticsearch bulk ingest file')
 
         args = parser.parse_args()
+        
+        if args.debug:
+            LOGGING_LEVEL = logging.DEBUG
+            logging.getLogger("requests").setLevel(logging.DEBUG)
+        else:
+            LOGGING_LEVEL = logging.INFO
+            logging.getLogger("requests").setLevel(logging.WARNING)
+            
+        # Set up logging to file and console
+        LOG_FILENAME = 'logs/ingest.log'
+        LOG_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
+        logger = logging.getLogger()
+        logger.setLevel(logging.INFO)
+
+
+        # Create console handler and set level
+        handler = logging.StreamHandler()
+        handler.setLevel(LOGGING_LEVEL)
+        formatter = logging.Formatter(LOG_FORMAT)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+        # Create error file handler and set level
+        handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=5000000,
+                                                       backupCount=5, encoding=None,
+                                                       delay=0)
+        handler.setLevel(LOGGING_LEVEL)
+        formatter = logging.Formatter(LOG_FORMAT)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+        log = logging.getLogger(__name__)    
 
         # if a mapping file is specified for the "publish" process later, use the specified mapping file
         self.threads = int( args.threads )
@@ -33,6 +70,7 @@ class Ingest:
         self.publish = args.publish
         self.rebuild = args.rebuild
         self.endpoint = args.sparql
+        self.altmetric = args.altmetric
 
         if args.mapping:
             self.mapping = args.mapping

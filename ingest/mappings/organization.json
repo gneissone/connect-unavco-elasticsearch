@@ -1,0 +1,114 @@
+{
+  "organization": {
+    "properties": {
+      "people":{
+        "properties":{
+          "name":{
+            "type":"multi_field",
+            "fields":{
+              "name":{
+                "type":"string",
+                "index":"analyzed"
+              },
+              "exact":{
+                "type":"string",
+                "index":"not_analyzed"
+              },
+              "folded":{
+                "type":"string",
+                "analyzer":"folding",
+                "index":"analyzed"
+              }							
+            }
+          },
+          "position": {
+            "type": "string",
+            "index": "analyzed"
+          },
+          "unavcoMemberRep": {
+            "type": "boolean"
+          },
+          "uri":{
+            "type":"string",
+            "index": "not_analyzed"
+          }
+        }
+      },
+      "country": {
+        "properties": {
+          "name":{
+            "type":"multi_field",
+            "fields":{
+              "name":{
+                "type":"string",
+                "index":"analyzed"
+              },
+              "exact":{
+                "type":"string",
+                "index":"not_analyzed"
+              }
+            }
+          },
+          "uri":{
+            "type":"string",
+            "index": "not_analyzed"
+          }
+        }
+      },
+      "state": {
+        "properties": {
+          "name":{
+            "type":"multi_field",
+            "fields":{
+              "name":{
+                "type":"string",
+                "index":"analyzed"
+              },
+              "exact":{
+                "type":"string",
+                "index":"not_analyzed"
+              }
+            }
+          },
+          "uri":{
+            "type":"string",
+            "index": "not_analyzed"
+          }
+        }
+      },
+      "membershipType": {
+        "type": "string",
+        "index":"not_analyzed"
+      },
+      "mostSpecificType": {
+        "type": "string",
+        "index":"not_analyzed"
+      },
+      "name": {
+        "type": "multi_field",
+        "fields": {
+          "name": {
+            "type": "string",
+            "index": "analyzed"
+          },
+          "exact": {
+            "type": "string",
+            "index": "not_analyzed"
+          },
+          "sort": {
+            "type": "string",
+            "analyzer": "ducet_sort"
+          },
+          "folded":{
+            "type":"string",
+            "analyzer":"folding",
+            "index":"analyzed"
+          }
+        }
+      },
+      "uri": {
+        "type": "string"
+      }
+    }
+  }
+}

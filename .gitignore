@@ -6,5 +6,5 @@
 *.pyc
 */__pycache__
 *out.json
-*[out]
+*\[out\]
 *api_settings.json

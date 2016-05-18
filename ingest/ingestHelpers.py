@@ -22,6 +22,7 @@ DCAT = Namespace("http://www.w3.org/ns/dcat#")
 RDFS = Namespace("http://www.w3.org/ns/dcat#")
 CITO = Namespace("http://purl.org/spar/cito/")
 VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
+VLOCAL = Namespace("http://connect.unavco.org/ontology/vlocal#")
 
 # Auxilary class for those helper functions getting attributes of objects
 from Maybe import *
@@ -74,7 +75,7 @@ def sparql_select(endpoint, query):
     try:
         EMAIL = data["api_user"]
         PASSWORD = data["api_password"]
-        API_URL = data["query_api_url"]
+        endpoint = data["query_api_url"]
     except KeyError:
         logging.exception("Could not load API credentials. "
                           "Ensure your credentials and API stored "
@@ -155,11 +156,6 @@ def get_dco_communities(x):
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
 
-def get_teams(x):
-    return Maybe.of(x).stream() \
-        .flatmap(lambda p: p.objects(DCO.associatedDCOTeam)) \
-        .filter(has_label) \
-        .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
 
 def get_data_types(x):
      return Maybe.of(x).stream() \
@@ -255,6 +251,51 @@ def get_authors(ds):
         print("missing rank for one or more authors of:", ds)
 
     return authors
+    
+def get_employees(ds):
+    pers = []
+    ended = False
+    liaisons = list(ds.objects(VLOCAL.hasLiaison))
+
+    roles = Maybe.of(ds).stream() \
+        .flatmap(lambda per: per.objects(VIVO.relatedBy)) \
+        .filter(lambda related: has_type(related, VIVO.Position)).list()
+
+    for role in roles:
+
+        # Only add a person as an employee if the position is current
+        # It is faster to determine this here rather than with SPARQL filters
+        endDate = None
+        dtList = [faux for faux in role.objects(VIVO.dateTimeInterval)]
+        for dates in dtList:
+            endDates = list(dates.objects(VIVO.end))
+            if endDates :
+                ended = True
+                break
+
+        if not ended:
+            person = Maybe.of(role).stream() \
+                     .flatmap(lambda r: r.objects(VIVO.relates)) \
+                     .filter(lambda o: has_type(o, FOAF.Person)) \
+                     .filter(has_label).one().value
+
+            if person in liaisons:
+                memberRep = 'true'
+            else:
+                memberRep = 'false'
+            
+            per = Maybe.of(role).stream() \
+                .flatmap(lambda r: r.objects(VIVO.relates)) \
+                .filter(lambda o: has_type(o, FOAF.Person)) \
+                .filter(has_label) \
+                .map(lambda o: {"uri": str(o.identifier), "name": str(o.label()), 
+                "unavcoMemberRep": memberRep, "position": str(role.label())}) \
+                .one().value
+
+            if per:
+                pers.append(per)
+            
+    return pers    
     
 # get_authors: object -> [authors] for objects such as: datasets, publications, ...
 def get_pub_year(ds):
