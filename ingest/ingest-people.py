@@ -172,6 +172,10 @@ def has_type(resource, type):
             return True
     return False
 
+def doesnt_have_label(resource, label):
+    if str(resource.label()) != str(label):
+        return True
+    return False
 
 def get_people(endpoint):
     r = select(endpoint, get_people_query)
@@ -201,9 +205,10 @@ def get_orcid(person):
 def get_most_specific_type(person):
     return Maybe.of(person).stream() \
         .flatmap(lambda p: p.objects(VITRO.mostSpecificType)) \
+        .filter(lambda o: doesnt_have_label(o, 'Person')) \
         .map(lambda t: t.label()) \
         .filter(non_empty_str) \
-        .one().value
+        .list()
 
 
 def get_network_id(person):

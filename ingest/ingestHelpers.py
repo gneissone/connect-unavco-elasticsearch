@@ -23,6 +23,7 @@ RDFS = Namespace("http://www.w3.org/ns/dcat#")
 CITO = Namespace("http://purl.org/spar/cito/")
 VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
 VLOCAL = Namespace("http://connect.unavco.org/ontology/vlocal#")
+WGS84 = Namespace("http://www.w3.org/2003/01/geo/wgs84_pos#")
 
 # Auxilary class for those helper functions getting attributes of objects
 from Maybe import *
@@ -186,6 +187,34 @@ def get_pub_venue(x):
         .flatmap(lambda p: p.objects(VIVO.hasPublicationVenue)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+        
+def get_isni(x):
+    return Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(VLOCAL.isni)) \
+        .filter(non_empty_str) \
+        .one().value
+
+def get_grid(x):
+    return Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(VIVO.gridId)) \
+        .filter(non_empty_str) \
+        .one().value
+
+def get_latlon(x):
+    lat = Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(WGS84.lat)) \
+        .filter(non_empty_str) \
+        .one().value
+
+    lon = Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(WGS84.long)) \
+        .filter(non_empty_str) \
+        .one().value
+        
+    if lat and lon:
+        return({"lat": float(lat), "lon": float(lon)})
+    else:
+        return None
 
 def get_presented_at(x):
     return Maybe.of(x).stream() \

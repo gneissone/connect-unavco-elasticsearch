@@ -79,10 +79,20 @@ class OrganizationIngest(Ingest):
                     doc.update({"membershipType": "Associate Member"})
                     break
 
-        
+        #TODO add lookup state and country
         # authors: if none, will return an empty list []
         people = get_employees(ds)
         doc.update({"people": people})
+        
+        latlon = get_latlon(ds)
+        if latlon:
+            doc.update({"location": latlon})
+
+        isni = get_isni(ds)
+        doc.update({"isni": isni})
+
+        grid = get_grid(ds)
+        doc.update({"gridId": grid})
 
         return doc
 

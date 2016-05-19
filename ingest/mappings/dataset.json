@@ -16,6 +16,11 @@
               "exact":{
                 "type":"string",
                 "index":"not_analyzed"
+              },
+              "folded":{
+                "type":"string",
+                "analyzer":"folding",
+                "index":"analyzed"
               }
             }
           },
