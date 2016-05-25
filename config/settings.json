@@ -9,8 +9,20 @@
             "folding":{  
                "tokenizer":"standard",
                "filter":[ "lowercase", "asciifolding" ]
+            },
+            "my_ngram_analyzer" : {
+               "tokenizer" : "my_ngram_tokenizer",
+               "filter": [ "lowercase" ]
             }
-         }
+         },
+         "tokenizer" : {
+            "my_ngram_tokenizer" : {
+              "type" : "nGram",
+              "min_gram" : "2",
+              "max_gram" : "5",
+              "token_chars": [ "letter", "digit" ]
+            }
+        }
       }
    }
 }

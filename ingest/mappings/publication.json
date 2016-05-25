@@ -214,6 +214,11 @@
           "exact":{
             "type":"string",
             "index":"not_analyzed"
+          },
+          "ngram":{
+            "type":"string",
+            "analyzer":"my_ngram_analyzer",
+            "index":"analyzed"
           }
         }
       },
