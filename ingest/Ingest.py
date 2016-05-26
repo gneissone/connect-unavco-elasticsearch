@@ -99,9 +99,7 @@ class Ingest:
         :return:            An entity entry in JSON
         """
         ds = self.create_document( entity )
-        if "dcoId" in ds and ds["dcoId"] is not None:
-            return [json.dumps( get_metadata( self.get_index(), self.get_type(), (ds["dcoId"]) ) ), json.dumps(ds)]
-        elif "uri" in ds and ds["uri"] is not None:
+        if "uri" in ds and ds["uri"] is not None:
             return [json.dumps( get_metadata( self.get_index(), self.get_type(), (ds["uri"]) ) ), json.dumps(ds)]
         else:
             return []

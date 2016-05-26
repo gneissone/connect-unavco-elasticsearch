@@ -366,7 +366,21 @@ def get_subject_areas(ds):
 
     return subject_areas
     
+    
+def get_sub_orgs(x):
+    return Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(OBO.BFO_0000051)) \
+        .filter(lambda partof: has_type(partof, FOAF.Organization)) \
+        .filter(has_label) \
+        .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
 
+def get_super_orgs(x):
+    return Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(OBO.BFO_0000050)) \
+        .filter(lambda partof: has_type(partof, FOAF.Organization)) \
+        .filter(has_label) \
+        .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+    
 # get_distributions: object -> [distributions] for objects such as: datasets, publications, ...
 def get_distributions(ds):
     distributions = []

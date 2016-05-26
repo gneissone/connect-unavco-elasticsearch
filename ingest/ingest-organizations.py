@@ -59,8 +59,8 @@ class OrganizationIngest(Ingest):
         except AttributeError:
             print( "missing title:", entity )
             return {}
-            
-        doc = {"uri": entity, "name": title}    
+
+        doc = {"uri": entity, "name": title}
 
         most_specific_type = list(ds.objects(VITRO.mostSpecificType))
         most_specific_type = most_specific_type[0].label().toPython() \
@@ -78,6 +78,12 @@ class OrganizationIngest(Ingest):
                 elif role_type.identifier == VLOCAL.AssociateMemberRole:
                     doc.update({"membershipType": "Associate Member"})
                     break
+
+        sub_orgs = get_sub_orgs(ds)
+        doc.update({"subOrgs": sub_orgs})
+
+        super_orgs = get_super_orgs(ds)
+        doc.update({"superOrgs": super_orgs})
 
         #TODO add lookup state and country
         # authors: if none, will return an empty list []
