@@ -124,7 +124,7 @@ def select(endpoint, query):
     try:
         EMAIL = data["api_user"]
         PASSWORD = data["api_password"]
-        API_URL = data["query_api_url"]
+        endpoint = data["query_api_url"]
     except KeyError:
         logging.exception("Could not load API credentials. "
                           "Ensure your credentials and API stored "
@@ -146,7 +146,7 @@ def describe(endpoint, query):
     try:
         EMAIL = data["api_user"]
         PASSWORD = data["api_password"]
-        API_URL = data["query_api_url"]
+        endpoint = data["query_api_url"]
     except KeyError:
         logging.exception("Could not load API credentials. "
                           "Ensure your credentials and API stored "

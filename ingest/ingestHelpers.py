@@ -291,10 +291,9 @@ def get_employees(ds):
         .filter(lambda related: has_type(related, VIVO.Position)).list()
 
     for role in roles:
-
         # Only add a person as an employee if the position is current
         # It is faster to determine this here rather than with SPARQL filters
-        endDate = None
+        ended = False
         dtList = [faux for faux in role.objects(VIVO.dateTimeInterval)]
         for dates in dtList:
             endDates = list(dates.objects(VIVO.end))
@@ -312,7 +311,7 @@ def get_employees(ds):
                 memberRep = 'true'
             else:
                 memberRep = 'false'
-            
+
             per = Maybe.of(role).stream() \
                 .flatmap(lambda r: r.objects(VIVO.relates)) \
                 .filter(lambda o: has_type(o, FOAF.Person)) \
@@ -323,7 +322,7 @@ def get_employees(ds):
 
             if per:
                 pers.append(per)
-            
+
     return pers    
     
 # get_authors: object -> [authors] for objects such as: datasets, publications, ...
