@@ -216,11 +216,59 @@ def get_latlon(x):
     else:
         return None
 
+def get_sponsor_id(x):
+    return Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(VIVO.sponsorAwardId)) \
+        .filter(non_empty_str) \
+        .one().value
+
 def get_presented_at(x):
     return Maybe.of(x).stream() \
         .flatmap(lambda p: p.objects(BIBO.presentedAt)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+
+def get_pi(x, role):
+    pis = []
+    pi_roles = [faux for faux in x.objects(VIVO.relates) if has_type(faux, role)]
+    for pi_role in pi_roles:
+        author = [person for person in pi_role.objects(OBO.RO_0000052) if has_type(person, FOAF.Person)]
+        if author:
+            author = author[0]
+        vcard = [person for person in pi_role.objects(OBO.RO_0000052) if has_type(person, VCARD.Individual)]
+        if vcard:
+            vcard = vcard[0]
+        if author:
+            name = author.label().toPython()
+            obj = {"uri": str(author.identifier), "name": name}
+            research_areas = [research_area.label().toPython() for research_area in author.objects(VIVO.hasResearchArea) if research_area.label()]
+            if research_areas:
+                obj.update({"researchArea": research_areas})
+        elif vcard:
+            vList = [faux for faux in vcard.objects(VCARD.hasName)][0]
+            if list(vList.objects(VCARD.familyName)):
+                fName = str(list(vList.objects(VCARD.familyName))[0])
+            else:
+                fName = None
+            if list(vList.objects(VCARD.givenName)):
+                gName = str(list(vList.objects(VCARD.givenName))[0])
+            else:
+                gName = None
+
+            if fName and gName:
+                name = '{}, {}'.format(fName,gName)
+            elif fName and not gName:
+                name = '{}'.format(fName)
+            elif gName and not fName:
+                name = '{}'.format(gName)
+            else:
+                name = None
+            obj = {"uri": None, "name": name}
+        else:
+            name = None
+
+        pis.append(obj)
+    return pis
 
 # get_authors: object -> [authors] for objects such as: datasets, publications, ...
 def get_authors(ds):
@@ -407,3 +455,25 @@ def get_distributions(ds):
         distributions.append(obj)
 
     return distributions
+    
+def get_grant_admin(x):
+    return Maybe.of(x).stream() \
+             .flatmap(lambda r: r.objects(VIVO.relates)) \
+             .filter(lambda o: has_type(o, FOAF.Organization)) \
+             .filter(has_label) \
+             .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+             
+def get_assigned_by(x):
+    return Maybe.of(x).stream() \
+             .flatmap(lambda r: r.objects(VIVO.assignedBy)) \
+             .filter(lambda o: has_type(o, FOAF.Organization)) \
+             .filter(has_label) \
+             .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+
+def get_start_date(ds):
+    return Maybe.of(ds).stream() \
+            .flatmap(lambda dti: dti.objects(VIVO.dateTimeInterval)) \
+            .flatmap(lambda sd: sd.objects(VIVO.start)) \
+            .flatmap(lambda dt: dt.objects(VIVO.dateTime)) \
+            .filter(non_empty_str) \
+            .one().value
