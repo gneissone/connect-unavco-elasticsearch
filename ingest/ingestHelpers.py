@@ -14,6 +14,7 @@ BIBO = Namespace("http://purl.org/ontology/bibo/")
 VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
 VIVO = Namespace('http://vivoweb.org/ontology/core#')
 VITRO = Namespace("http://vitro.mannlib.cornell.edu/ns/vitro/0.7#")
+VITRO_PUB = Namespace("http://vitro.mannlib.cornell.edu/ns/vitro/public#")
 OBO = Namespace("http://purl.obolibrary.org/obo/")
 EC = Namespace("https://library.ucar.edu/earthcollab/schema#")
 DCO = Namespace("http://info.deepcarbon.net/schema#")
@@ -146,6 +147,11 @@ def has_type(resource, type):
             return True
     return False
 
+def has_most_specific_type(resource, type):
+    for rtype in resource.objects(VITRO.mostSpecificType):
+        if str(rtype.identifier) == str(type):
+            return True
+    return False
 
 def get_id(dco_id):
     return dco_id[dco_id.rfind('/') + 1:]
@@ -173,6 +179,12 @@ def get_cites(x):
 def get_rel_stations(x):
     return Maybe.of(x).stream() \
         .flatmap(lambda p: p.objects(OBO.RO_0002353)) \
+        .filter(has_label) \
+        .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+
+def get_rel_datasets(x):
+    return Maybe.of(x).stream() \
+        .flatmap(lambda p: p.objects(OBO.RO_0002234)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
 
@@ -477,3 +489,19 @@ def get_start_date(ds):
             .flatmap(lambda dt: dt.objects(VIVO.dateTime)) \
             .filter(non_empty_str) \
             .one().value
+
+def get_thumbnail(ds):
+    return Maybe.of(ds).stream() \
+        .flatmap(lambda p: p.objects(VITRO_PUB.mainImage)) \
+        .flatmap(lambda i: i.objects(VITRO_PUB.thumbnailImage)) \
+        .flatmap(lambda t: t.objects(VITRO_PUB.downloadLocation)) \
+        .map(lambda t: t.identifier) \
+        .one().value
+
+# level should be the URI of a place class
+def get_location(ds,level='http://vivoweb.org/ontology/core#GeographicLocation'):
+    return Maybe.of(ds).stream() \
+        .flatmap(lambda p: p.objects(OBO.BFO_0000050)) \
+        .filter(lambda partof: has_most_specific_type(partof, level)) \
+        .filter(has_label) \
+        .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
