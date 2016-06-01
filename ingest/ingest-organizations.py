@@ -21,6 +21,7 @@ DESCRIBE_QUERY_FILE = "queries/describeOrganization.rq"
 SUBJECT_NAME = "?organization"
 INDEX = "unavco"
 TYPE = "organization"
+MAPPING = "mappings/organization.json"
 
 # Second, extend the Ingest base class to class 'XIngest' below, where X is the singular form, with capitalized
 # initial letter, of the 'type' of search document generated. E.g. DatasetIngest, ProjectIngest, etc.
@@ -28,8 +29,6 @@ TYPE = "organization"
 # (Existing examples are helpful.)
 
 class OrganizationIngest(Ingest):
-    
-    MAPPING = "mappings/organization.json"
     
     def get_mapping( self ):
         return MAPPING

@@ -68,8 +68,8 @@ class StationIngest(Ingest):
             doc.update({"mostSpecificType": most_specific_type})
             
         fourChId = list(ds.objects(VLOCAL.has4CharID))
-        fourChId = fourChId[0].label().toPython() \
-            if fourChId and fourChId[0].label() \
+        fourChId = fourChId[0].value \
+            if fourChId and fourChId[0].value \
             else None
         if fourChId:
             doc.update({"4ChId": fourChId})

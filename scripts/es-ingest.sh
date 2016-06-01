@@ -7,29 +7,45 @@
 echo "**** Start People Ingest"
 ofile=`date +"%Y%m%d-%H-%M-%S".people.bulk`
 
-cd /opt/dco/dco-elasticsearch/ingest
+cd /usr/local/scripts/connect-unavco-elasticsearch/ingest
 
-/usr/bin/python3 /opt/dco/dco-elasticsearch/ingest/ingest-people.py --threads 4 --sparql http://localhost:2020/vivo/query --es http://localhost:49200 --publish ${ofile} >> /var/log/people-ingest.log
+/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-people.py --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --publish ${ofile} >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/people-ingest.log
 
 gzip ${ofile}
-mv ${ofile}.gz /opt/backups/es
+mv ${ofile}.gz /usr/local/scripts/connect-unavco-elasticsearch/ingest/backups
 echo "**** End People Ingest"
 sleep 30
 
 ##############
-# Projects
+# Grants
 ##############
 
-echo "**** Start Project Ingest"
-ofile=`date +"%Y%m%d-%H-%M-%S".projects.bulk`
+echo "**** Start Grant Ingest"
+ofile=`date +"%Y%m%d-%H-%M-%S".grants.bulk`
 
-cd /opt/dco/dco-elasticsearch/ingest 
+cd /usr/local/scripts/connect-unavco-elasticsearch/ingest 
 
-/usr/bin/python3 /opt/dco/dco-elasticsearch/ingest/ingest-projects.py --threads 4 --sparql http://localhost:2020/vivo/query --es http://localhost:49200 --publish $ofile >> /var/log/projects-ingest.log 
+/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-grants.py --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/grants-ingest.log 
 
 gzip $ofile
-mv $ofile.gz /opt/backups/es/
-echo "**** End Project Ingest"
+mv $ofile.gz /usr/local/scripts/connect-unavco-elasticsearch/ingest/backups/
+echo "**** End Grant Ingest"
+sleep 30
+
+##############
+# Organizations
+##############
+
+echo "**** Start Organization Ingest"
+ofile=`date +"%Y%m%d-%H-%M-%S".organizations.bulk`
+
+cd /usr/local/scripts/connect-unavco-elasticsearch/ingest 
+
+/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-organizations.py --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/organizations-ingest.log 
+
+gzip $ofile
+mv $ofile.gz /usr/local/scripts/connect-unavco-elasticsearch/ingest/backups/
+echo "**** End Organization Ingest"
 sleep 30
 
 ##############
@@ -39,29 +55,29 @@ sleep 30
 echo "**** Start Publications Ingest"
 ofile=`date +"%Y%m%d-%H-%M-%S".publications.bulk`
 
-cd /opt/dco/dco-elasticsearch/ingest 
+cd /usr/local/scripts/connect-unavco-elasticsearch/ingest 
 
-/usr/bin/python3 /opt/dco/dco-elasticsearch/ingest/ingest-publications.py --threads 4 --sparql http://localhost:2020/vivo/query --es http://localhost:49200 --publish $ofile >> /var/log/publication-ingest.log
+/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-publications.py --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --altmetric --es http://localhost:9200 --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/publication-ingest.log
 
 gzip $ofile
-mv $ofile.gz /opt/backups/es/
+mv $ofile.gz /usr/local/scripts/connect-unavco-elasticsearch/ingest/backups/
 echo "**** End Publications Ingest"
 
 ##############
-# Field Study
+# Places
 ##############
 
-echo "**** Start Field Study Ingest"
+echo "**** Start Places Ingest"
 
-ofile=`date +"%Y%m%d-%H-%M-%S".fieldstudy.bulk`
+ofile=`date +"%Y%m%d-%H-%M-%S".places.bulk`
 
-cd /opt/dco/dco-elasticsearch/ingest 
+cd /usr/local/scripts/connect-unavco-elasticsearch/ingest 
 
-/usr/bin/python3 /opt/dco/dco-elasticsearch/ingest/ingest-field-studies.py --threads 4 --sparql http://localhost:2020/vivo/query --es http://localhost:49200 --publish $ofile >> /var/log/fieldstudy-ingest.log
+/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-stations.py --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/station-ingest.log
 
 gzip $ofile
 
-mv $ofile.gz /opt/backups/es/
+mv $ofile.gz /usr/local/scripts/connect-unavco-elasticsearch/ingest/backups/
 
 ##############
 # Dataset
@@ -70,33 +86,17 @@ mv $ofile.gz /opt/backups/es/
 echo "**** Start Dataset Ingest"
 ofile=`date +"%Y%m%d-%H-%M-%S".dataset.bulk`
 
-cd /opt/dco/dco-elasticsearch/ingest 
+cd /usr/local/scripts/connect-unavco-elasticsearch/ingest 
 
-/usr/bin/python3 /opt/dco/dco-elasticsearch/ingest/ingest-datasets.py --threads 4 --sparql http://localhost:2020/vivo/query --es
-http://localhost:49200 --publish $ofile >> /var/log/dataset-ingest.log
+/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-datasets.py --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/dataset-ingest.log
 
 gzip $ofile
 
-mv $ofile.gz /opt/backups/es/
-
-##############
-# Data Types
-##############
-
-echo "**** Start Data Type Ingest"
-ofile=`date +"%Y%m%d-%H-%M-%S".datatypes.bulk`
-
-cd /opt/dco/dco-elasticsearch/ingest
-
-/usr/bin/python3 /opt/dco/dco-elasticsearch/ingest/ingest-datatypes.py --threads 4 --sparql http://localhost:2020/vivo/query --es http://localhost:49200 --publish ${ofile} >> /var/log/datatypes-ingest.log
-
-gzip ${ofile}
-mv ${ofile}.gz /opt/backups/es
+mv $ofile.gz /usr/local/scripts/connect-unavco-elasticsearch/ingest/backups/
 
 ##############
 # Cleanup
 ##############
 
-cd /opt/backups/es
+cd /usr/local/scripts/connect-unavco-elasticsearch/ingest/backups
 find . -atime +5 -delete
-

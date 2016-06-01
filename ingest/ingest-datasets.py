@@ -21,6 +21,7 @@ DESCRIBE_QUERY_FILE = "queries/describeDataset.rq"
 SUBJECT_NAME = "?dataset"
 INDEX = "unavco"
 TYPE = "dataset"
+MAPPING = "mappings/dataset.json"
 
 # Second, extend the Ingest base class to class 'XIngest' below, where X is the singular form, with capitalized
 # initial letter, of the 'type' of search document generated. E.g. DatasetIngest, ProjectIngest, etc.
@@ -82,20 +83,6 @@ class DatasetIngest(Ingest):
         if abstract:
             doc.update({"abstract": abstract})
 
-        dco_communities = get_dco_communities(ds)
-        if dco_communities:
-            doc.update({"dcoCommunities": dco_communities})
-
-        # teams
-        teams = get_teams(ds)
-        if teams:
-            doc.update({"teams": teams})
-
-        # projects
-        projects = get_projects_of_dataset(ds)
-        if projects:
-            doc.update({"projects": projects})
-
         # dataType
         data_types = get_data_types(ds)
         if data_types:
@@ -120,9 +107,6 @@ class DatasetIngest(Ingest):
         if publication_year:
             doc.update({"publicationYear": (publication_year)})
 
-        # distributions: if none, will return an empty list []
-        distributions = get_distributions(ds)
-        doc.update({"distributions": distributions})
         return doc
 
 
