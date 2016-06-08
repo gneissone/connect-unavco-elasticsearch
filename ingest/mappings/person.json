@@ -100,35 +100,6 @@
           }
         }
       },
-      "teams": {
-        "properties": {
-          "team": {
-            "properties": {
-              "name": {
-                "type": "multi_field",
-                "fields": {
-                  "name": {
-                    "type": "string",
-                    "index": "analyzed"
-                  },
-                  "exact": {
-                    "type": "string",
-                    "index": "not_analyzed"
-                  }
-                }
-              },
-              "uri": {
-                "type": "string",
-                "index": "no"
-              }
-            }
-          },
-          "teamrole": {
-            "type": "string",
-            "index": "analyzed"
-          }
-        }
-      },
       "researchArea": {
         "properties": {
           "name": {

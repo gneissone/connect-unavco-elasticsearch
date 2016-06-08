@@ -1,6 +1,19 @@
 {
   "grant": {
     "properties": {
+      "title": {
+        "type": "multi_field",
+          "fields": {
+            "title": {
+              "type": "string",
+              "index": "analyzed"
+            },
+            "exact": {
+              "type": "string",
+              "index": "not_analyzed"
+            }
+          }
+      },
       "abstract": {
         "type": "string"
       },
@@ -162,19 +175,6 @@
       },
       "startDate": {
         "type": "date"
-      },
-      "title": {
-        "type": "multi_field",
-          "fields": {
-            "title": {
-              "type": "string",
-              "index": "analyzed"
-            },
-            "exact": {
-              "type": "string",
-              "index": "not_analyzed"
-            }
-          }
       },
       "uri": {
         "type": "string"

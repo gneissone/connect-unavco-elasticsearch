@@ -1,6 +1,24 @@
 {
   "publication":{
     "properties":{
+      "title":{
+        "type":"multi_field",
+        "fields":{
+          "title":{
+            "type":"string",
+            "index":"analyzed"
+          },
+          "exact":{
+            "type":"string",
+            "index":"not_analyzed"
+          },
+          "ngram":{
+            "type":"string",
+            "analyzer":"my_ngram_analyzer",
+            "index":"analyzed"
+          }
+        }
+      },
       "subjectArea":{
         "properties":{
           "name":{
@@ -82,60 +100,11 @@
           }
         }
       },
-      "community":{
-        "properties":{
-          "name":{
-            "type":"multi_field",
-            "fields":{
-              "name":{
-                "type":"string",
-                "index":"analyzed"
-              },
-              "exact":{
-                "type":"string",
-                "index":"not_analyzed"
-              }
-            }
-          },
-          "uri":{
-            "type":"string",
-            "index": "not_analyzed"
-          }
-        }
-      },
-      "team":{
-        "properties":{
-          "name":{
-            "type":"multi_field",
-            "fields":{
-              "name":{
-                "type":"string",
-                "index":"analyzed"
-              },
-              "exact":{
-                "type":"string",
-                "index":"not_analyzed"
-              }
-            }
-          },
-          "uri":{
-            "type":"string",
-            "index": "not_analyzed"
-          }
-        }
-      },
-      "dcoId":{
-        "type":"string",
-        "index": "not_analyzed"
-      },
       "amscore":{
         "type":"float",
         "index": "not_analyzed",
         "null_value" : 0
       },			
-      "isDcoPublication":{
-        "type":"boolean"
-      },
       "keywords":{
         "type":"multi_field",
         "fields":{
@@ -203,24 +172,6 @@
       "mostSpecificType": {
         "type":"string",
         "index": "not_analyzed"
-      },
-      "title":{
-        "type":"multi_field",
-        "fields":{
-          "title":{
-            "type":"string",
-            "index":"analyzed"
-          },
-          "exact":{
-            "type":"string",
-            "index":"not_analyzed"
-          },
-          "ngram":{
-            "type":"string",
-            "analyzer":"my_ngram_analyzer",
-            "index":"analyzed"
-          }
-        }
       },
       "type":{
         "type":"multi_field",
