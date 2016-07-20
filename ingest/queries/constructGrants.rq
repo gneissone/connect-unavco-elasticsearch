@@ -1,0 +1,113 @@
+PREFIX  dc:   <http://purl.org/dc/elements/1.1/>
+PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX  cito: <http://purl.org/spar/cito/>
+PREFIX  ec:   <https://library.ucar.edu/earthcollab/schema#>
+PREFIX  vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+PREFIX  vitro: <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#>
+PREFIX  dct:  <http://purl.org/dc/terms/>
+PREFIX  bibo: <http://purl.org/ontology/bibo/>
+PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  vivo: <http://vivoweb.org/ontology/core#>
+
+CONSTRUCT 
+  { ?grant rdf:type vivo:Grant .
+    ?grant vitro:mostSpecificType ?mostSpecificType .
+    ?grant rdfs:label ?label .
+    ?grant vivo:dateTimeInterval ?dtInt .
+    ?dtInt vivo:start ?dtStart .
+    ?dtStart vivo:dateTime ?startDate .
+    ?grant rdf:type vivo:Grant .
+    ?grant vivo:relates ?role .
+    ?role obo:RO_0000052 ?investigator .
+    ?grant vivo:sponsorAwardId ?awardId .
+    ?grant vivo:relates ?role .
+    ?role rdf:type ?roleType .
+    ?role obo:RO_0000052 ?investigator .
+    ?investigator rdf:type ?investigatorType .
+    ?investigator vcard:hasName ?vcardName .
+    ?vcardName vcard:givenName ?vcardgName .
+    ?vcardName vcard:familyName ?vcardfName .
+    ?investigator rdfs:label ?investigatorLabel .
+    ?grant vivo:assignedBy ?abOrg .
+    ?abOrg rdf:type ?abtype .
+    ?abOrg rdfs:label ?ablabel .
+    ?org rdf:type ?orgType .
+    ?org rdfs:label ?orgLabel .
+    ?grant vivo:relates ?org .
+    ?org rdf:type foaf:Organization }
+    
+WHERE
+  {   { ?grant rdf:type vivo:Grant .
+        ?grant vitro:mostSpecificType ?mostSpecificType .
+        ?grant rdfs:label ?label
+      }
+    UNION
+      { ?grant rdf:type vivo:Grant .
+        ?grant bibo:doi ?doi
+      }
+    UNION
+      { ?grant vivo:assignedBy ?abOrg .
+        ?abOrg rdf:type ?abtype .
+        ?abOrg rdfs:label ?ablabel
+      }
+    UNION
+      { ?grant rdf:type vivo:Grant .
+        ?grant vivo:relates ?org .
+        ?org rdf:type foaf:Organization .
+        ?org rdf:type ?orgType .
+        ?org rdfs:label ?orgLabel
+      }
+    UNION
+      { ?grant rdf:type vivo:Grant .
+        ?grant vivo:sponsorAwardId ?awardId
+      }
+    UNION
+      { ?grant rdf:type vivo:Grant .
+        ?grant bibo:abstract ?abstract
+      }
+    UNION
+      { ?grant rdf:type vivo:Grant .
+        ?grant vivo:dateTimeInterval ?dtInt .
+        ?dtInt vivo:start ?dtStart .
+        ?dtStart vivo:dateTime ?startDate
+      }
+    UNION
+      { ?grant rdf:type vivo:Grant .
+        ?grant vivo:relates ?role .
+        ?role rdf:type vivo:InvestigatorRole .
+        ?role rdf:type ?roleType .
+        ?role obo:RO_0000052 ?investigator .
+        ?investigator rdf:type ?investigatorType .
+        ?investigator rdfs:label ?investigatorLabel
+      }
+    UNION
+      { ?grant rdf:type vivo:Grant .
+        ?grant vivo:relates ?role .
+        ?role rdf:type vivo:InvestigatorRole .
+        ?role rdf:type ?roleType .
+        ?role obo:RO_0000052 ?investigator .
+        ?investigator rdf:type vcard:Individual .
+        ?investigator rdf:type ?investigatorType .
+        ?investigator vcard:hasName ?vcardName .
+        ?vcardName vcard:familyName ?vcardfName
+      }
+    UNION
+      { ?grant rdf:type vivo:Grant .
+        ?grant vivo:relates ?role .
+        ?role rdf:type vivo:InvestigatorRole .
+        ?role obo:RO_0000052 ?investigator .
+        ?investigator rdf:type vcard:Individual .
+        ?investigator rdf:type ?investigatorType .
+        ?investigator vcard:hasName ?vcardName .
+        ?vcardName vcard:givenName ?vcardgName
+      }
+    UNION
+      { ?grant rdf:type vivo:Grant .
+        ?grant vivo:relates ?org .
+        ?org rdf:type foaf:Organization
+      }
+  }

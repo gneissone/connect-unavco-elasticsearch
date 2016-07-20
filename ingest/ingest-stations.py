@@ -18,6 +18,7 @@ from Ingest import *
 
 LIST_QUERY_FILE = "queries/listStations.rq"
 DESCRIBE_QUERY_FILE = "queries/describeStation.rq"
+CONSTRUCT_QUERY_FILE = "queries/constructStations.rq"
 SUBJECT_NAME = "?station"
 INDEX = "unavco"
 TYPE = "station"
@@ -39,6 +40,9 @@ class StationIngest(Ingest):
     def get_describe_query_file(self):
         return DESCRIBE_QUERY_FILE
 
+    def get_construct_query_file(self):
+        return CONSTRUCT_QUERY_FILE
+
     def get_subject_name(self):
         return SUBJECT_NAME
 
@@ -49,8 +53,7 @@ class StationIngest(Ingest):
         return TYPE
 
     def create_document( self, entity ):
-        graph = self.describe_entity( entity )
-        ds = graph.resource( entity )
+        ds = self.graph.resource( entity )
 
         try:
             title = ds.label().toPython()

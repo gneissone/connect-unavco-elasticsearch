@@ -18,6 +18,7 @@ from Ingest import *
 
 LIST_QUERY_FILE = "queries/listDatasets.rq"
 DESCRIBE_QUERY_FILE = "queries/describeDataset.rq"
+CONSTRUCT_QUERY_FILE = "queries/constructDataset.rq"
 SUBJECT_NAME = "?dataset"
 INDEX = "unavco"
 TYPE = "dataset"
@@ -38,6 +39,9 @@ class DatasetIngest(Ingest):
 
     def get_describe_query_file(self):
         return DESCRIBE_QUERY_FILE
+    
+    def get_construct_query_file(self):
+        return CONSTRUCT_QUERY_FILE
 
     def get_subject_name(self):
         return SUBJECT_NAME
@@ -51,9 +55,8 @@ class DatasetIngest(Ingest):
     MAPPING = "mappings/dataset.json"
 
     def create_document( self, entity ):
-        graph = self.describe_entity( entity )
-        #print(graph.serialize(format='turtle'))
-        ds = graph.resource( entity )
+        #graph = self.describe_entity( entity ) # Is it much worse to have the whole graph here? Let's try it.
+        ds = self.graph.resource( entity )
 
         try:
             title = ds.label().toPython()
@@ -61,10 +64,7 @@ class DatasetIngest(Ingest):
             print( "missing title:", entity )
             return {}
 
-        dco_id = list(ds.objects(DCO.hasDcoId))
-        dco_id = str(dco_id[0].label().toPython()) if dco_id else None
-
-        doc = {"uri": entity, "title": title, "dcoId": dco_id}
+        doc = {"uri": entity, "title": title}
 
         most_specific_type = list(ds.objects(VITRO.mostSpecificType))
         most_specific_type = most_specific_type[0].label().toPython() \
@@ -106,7 +106,6 @@ class DatasetIngest(Ingest):
         publication_year = get_pub_year(ds)
         if publication_year:
             doc.update({"publicationYear": (publication_year)})
-
         return doc
 
 

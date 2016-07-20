@@ -1,0 +1,115 @@
+PREFIX  dc:   <http://purl.org/dc/elements/1.1/>
+PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX  vitro-pub: <http://vitro.mannlib.cornell.edu/ns/vitro/public#>
+PREFIX  cito: <http://purl.org/spar/cito/>
+PREFIX  vlocal: <http://connect.unavco.org/ontology/vlocal#>
+PREFIX  ec:   <https://library.ucar.edu/earthcollab/schema#>
+PREFIX  vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+PREFIX  vitro: <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#>
+PREFIX  dct:  <http://purl.org/dc/terms/>
+PREFIX  bibo: <http://purl.org/ontology/bibo/>
+PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  vivo: <http://vivoweb.org/ontology/core#>
+
+CONSTRUCT 
+  { ?station rdf:type ec:Station .
+    ?station vitro:mostSpecificType ?mostSpecificType .
+    ?station rdfs:label ?label .
+    ?station vivo:dateTimeInterval ?dtInt .
+    ?dtInt vivo:start ?dtStart .
+    ?dtStart vivo:dateTime ?startDate .
+    ?station rdf:type ec:Station .
+    ?station vivo:relates ?role .
+    ?role obo:RO_0000052 ?investigator .
+    ?station vivo:sponsorAwardId ?awardId .
+    ?station vivo:relates ?role .
+    ?role rdf:type ?roleType .
+    ?role obo:RO_0000052 ?investigator .
+    ?investigator rdf:type ?investigatorType .
+    ?investigator vcard:hasName ?vcardName .
+    ?vcardName vcard:givenName ?vcardgName .
+    ?vcardName vcard:familyName ?vcardfName .
+    ?investigator rdfs:label ?investigatorLabel .
+    ?station vivo:dateTimeValue ?dt .
+    ?dt vivo:dateTime ?retireDate .
+    ?station obo:RO_0002234 ?relDataset .
+    ?relDataset rdfs:label ?relDatasetLabel .
+    ?station vlocal:has4CharID ?4chid .
+    ?station obo:BFO_0000050 ?place .
+    ?place vitro:mostSpecificType ?placeType .
+    ?place rdfs:label ?placeLabel .
+    ?station vitro-pub:mainImage ?main_image .
+    ?main_image vitro-pub:thumbnailImage ?thumb_image .
+    ?thumb_image vitro-pub:downloadLocation ?thumbnail .}
+WHERE
+  {   { ?station rdf:type ec:Station .
+        ?station vitro:mostSpecificType ?mostSpecificType .
+        ?station rdfs:label ?label
+      }
+    UNION
+      { ?station rdf:type ec:Station .
+        ?station vitro-pub:mainImage ?main_image .
+        ?main_image vitro-pub:thumbnailImage ?thumb_image .
+        ?thumb_image vitro-pub:downloadLocation ?thumbnail
+      }
+    UNION
+      { ?station rdf:type ec:Station .
+        ?station vivo:relates ?role .
+        ?role rdf:type vivo:InvestigatorRole .
+        ?role rdf:type ?roleType .
+        ?role obo:RO_0000052 ?investigator .
+        ?investigator rdf:type ?investigatorType .
+        ?investigator rdfs:label ?investigatorLabel
+      }
+    UNION
+      { ?station rdf:type ec:Station .
+        ?station vivo:relates ?role .
+        ?role rdf:type vivo:InvestigatorRole .
+        ?role rdf:type ?roleType .
+        ?role obo:RO_0000052 ?investigator .
+        ?investigator rdf:type vcard:Individual .
+        ?investigator rdf:type ?investigatorType .
+        ?investigator vcard:hasName ?vcardName .
+        ?vcardName vcard:familyName ?vcardfName
+      }
+    UNION
+      { ?station rdf:type ec:Station .
+        ?station vivo:relates ?role .
+        ?role rdf:type vivo:InvestigatorRole .
+        ?role obo:RO_0000052 ?investigator .
+        ?investigator rdf:type vcard:Individual .
+        ?investigator rdf:type ?investigatorType .
+        ?investigator vcard:hasName ?vcardName .
+        ?vcardName vcard:givenName ?vcardgName
+      }
+    UNION
+      { ?station rdf:type ec:Station .
+        ?station vivo:dateTimeValue ?dt .
+        ?dt vivo:dateTime ?retireDate
+      }
+    UNION
+      { ?station rdf:type ec:Station .
+        ?station vivo:dateTimeInterval ?dtInt .
+        ?dtInt vivo:start ?dtStart .
+        ?dtStart vivo:dateTime ?startDate
+      }
+    UNION
+      { ?station rdf:type ec:Station .
+        ?station obo:RO_0002234 ?relDataset .
+        ?relDataset rdfs:label ?relDatasetLabel
+      }
+    UNION
+      { ?station rdf:type ec:Station .
+        ?station vlocal:has4CharID ?4chid
+      }
+    UNION
+      { ?station rdf:type ec:Station .
+        ?station obo:BFO_0000050 ?place .
+        ?place vitro:mostSpecificType ?placeType .
+        ?place rdfs:label ?placeLabel
+      }
+  }

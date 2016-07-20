@@ -1,6 +1,6 @@
 __author__ = 'Hao'
 
-from rdflib import Namespace, RDF
+from rdflib import Namespace, RDF, Graph
 from itertools import chain
 import argparse
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -106,7 +106,7 @@ def sparql_describe( endpoint, query ):
     try:
         EMAIL = data["api_user"]
         PASSWORD = data["api_password"]
-        API_URL = data["query_api_url"]
+        endpoint = data["query_api_url"]
     except KeyError:
         logging.exception("Could not load API credentials. "
                           "Ensure your credentials and API stored "
@@ -121,6 +121,37 @@ def sparql_describe( endpoint, query ):
     try:
         r = sparql.query().convert()
         #print(r.serialize(format="turtle"))
+        return r
+    except RuntimeWarning:
+        pass
+        
+# describe: helper function for describe_entity
+def sparql_construct( endpoint, query ):
+    """
+    Helper function used to run a sparql describe query
+    :param endpoint:    SPARQL endpoint
+    :param query:       the describe query to run
+    :return:
+        a json object representing the entity
+    """
+    data = load_settings()
+    try:
+        EMAIL = data["api_user"]
+        PASSWORD = data["api_password"]
+        endpoint = data["query_api_url"]
+    except KeyError:
+        logging.exception("Could not load API credentials. "
+                          "Ensure your credentials and API stored "
+                          "correctly in api_settings.json. See "
+                          "api_settings.json.example.")
+        raise RuntimeError('Update failed. See log for details.')
+    sparql = SPARQLWrapper( endpoint )
+    sparql.setQuery( query )
+    sparql.setMethod("POST")
+    sparql.addParameter("email", EMAIL)
+    sparql.addParameter("password", PASSWORD)
+    try:
+        r = sparql.query().convert()
         return r
     except RuntimeWarning:
         pass
@@ -286,9 +317,12 @@ def get_pi(x, role):
 def get_authors(ds):
     authors = []
     authorships = [faux for faux in ds.objects(VIVO.relatedBy) if has_type(faux, VIVO.Authorship)]
-    for authorship in authorships:  
+    for authorship in authorships:
+        orgauthor = [person for person in authorship.objects(VIVO.relates) if has_type(person, FOAF.Organization)]
         author = [person for person in authorship.objects(VIVO.relates) if has_type(person, FOAF.Person)]
-        if author:
+        if orgauthor:
+            author = orgauthor[0]
+        elif author:
             author = author[0]
         vcard = [person for person in authorship.objects(VIVO.relates) if has_type(person, VCARD.Individual)]
         if vcard:
@@ -325,6 +359,8 @@ def get_authors(ds):
             obj = {"uri": None, "name": name}
         else:
             name = None
+            print("the authorship object relates to a uri with no type! ", ds)
+            break
 
         rank = list(authorship.objects(VIVO.rank))
         rank = str(rank[0].toPython()) if rank else None # added the str()
@@ -335,7 +371,7 @@ def get_authors(ds):
 
 
     try:
-        authors = sorted(authors, key=lambda a: a["rank"]) if len(authors) > 1 else authors
+        authors = sorted(authors, key=lambda a: int(a["rank"])) if len(authors) > 1 else authors
     except KeyError:
         print("missing rank for one or more authors of:", ds)
 
@@ -440,6 +476,12 @@ def get_super_orgs(x):
         .filter(lambda partof: has_type(partof, FOAF.Organization)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+
+def get_orcid(person):
+    return Maybe.of(person).stream() \
+        .flatmap(lambda p: p.objects(VIVO.orcidId)) \
+        .map(lambda o: o.identifier) \
+        .map(lambda o: o[o.rfind('/') + 1:]).one().value
     
 # get_distributions: object -> [distributions] for objects such as: datasets, publications, ...
 def get_distributions(ds):
@@ -505,3 +547,62 @@ def get_location(ds,level='http://vivoweb.org/ontology/core#GeographicLocation')
         .filter(lambda partof: has_most_specific_type(partof, level)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+        
+def get_given_name(person):
+    return Maybe.of(person).stream() \
+        .flatmap(lambda p: p.objects(OBO.ARG_2000028)) \
+        .flatmap(lambda v: v.objects(VCARD.hasName)) \
+        .flatmap(lambda n: n.objects(VCARD.givenName)) \
+        .filter(non_empty_str) \
+        .one().value
+
+
+def get_family_name(person):
+    return Maybe.of(person).stream() \
+        .flatmap(lambda p: p.objects(OBO.ARG_2000028)) \
+        .flatmap(lambda v: v.objects(VCARD.hasName)) \
+        .flatmap(lambda n: n.objects(VCARD.familyName)) \
+        .filter(non_empty_str) \
+        .one().value
+        
+def get_email(person):
+    return Maybe.of(person).stream() \
+        .flatmap(lambda p: p.objects(OBO.ARG_2000028)) \
+        .flatmap(lambda v: v.objects(VCARD.hasEmail)) \
+        .filter(lambda f: has_type(f, VCARD.Work)) \
+        .flatmap(lambda e: e.objects(VCARD.email)) \
+        .filter(non_empty_str) \
+        .one().value
+        
+def get_research_areas(person):
+    return Maybe.of(person).stream() \
+        .flatmap(lambda p: p.objects(VIVO.hasResearchArea)) \
+        .filter(has_label) \
+        .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+
+def get_expertise_areas(person):
+    return Maybe.of(person).stream() \
+        .flatmap(lambda p: p.objects(VLOCAL.hasExpertise)) \
+        .filter(has_label) \
+        .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+
+
+def get_organizations(person):
+    orgs = []
+
+    orgroles = Maybe.of(person).stream() \
+        .flatmap(lambda per: per.objects(VIVO.relatedBy)) \
+        .filter(lambda related: has_type(related, VIVO.Position)).list()
+
+    for orgrole in orgroles:
+        org = Maybe.of(orgrole).stream() \
+            .flatmap(lambda r: r.objects(VIVO.relates)) \
+            .filter(lambda o: has_type(o, FOAF.Organization)) \
+            .filter(has_label) \
+            .map(lambda o: {"uri": str(o.identifier), "name": str(o.label())}) \
+            .one().value
+
+        if org:
+            orgs.append({"orgrole": str(orgrole.label()), "organization": org})
+
+    return orgs

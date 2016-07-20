@@ -1,0 +1,114 @@
+PREFIX  dc:   <http://purl.org/dc/elements/1.1/>
+PREFIX  vitro-pub: <http://vitro.mannlib.cornell.edu/ns/vitro/public#>
+PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX  cito: <http://purl.org/spar/cito/>
+PREFIX  vlocal: <http://connect.unavco.org/ontology/vlocal#>
+PREFIX  vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX  ec:   <https://library.ucar.edu/earthcollab/schema#>
+PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  vitro: <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#>
+PREFIX  dct:  <http://purl.org/dc/terms/>
+PREFIX  bibo: <http://purl.org/ontology/bibo/>
+PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  vivo: <http://vivoweb.org/ontology/core#>
+
+CONSTRUCT 
+  { ?dataset rdf:type vivo:Dataset .
+    ?dataset vitro:mostSpecificType ?mostSpecificType .
+    ?dataset rdfs:label ?label .
+    ?dataset bibo:doi ?doi .
+    ?dataset bibo:doi ?abstract .
+    ?dataset vivo:dateTimeValue ?publicationObj .
+    ?publicationObj vivo:dateTime ?publicationYear .
+    ?dataset vivo:relatedBy ?authorship .
+    ?authorship rdf:type vivo:Authorship .
+    ?authorship vivo:relates ?author .
+    ?author rdf:type ?authorType .
+    ?author rdfs:label ?authorLabel .
+    ?authorship rdf:type ?authorshipType .
+    ?authorship vivo:rank ?rank .
+    ?author vcard:hasName ?vcardName .
+    ?vcardName vcard:givenName ?vcardgName .
+    ?vcardName vcard:familyName ?vcardfName .
+    ?dataset ec:hasDatasetType ?dsType .
+    ?dsType rdf:type ?what .
+    ?dsType rdfs:label ?dataType .
+    ?dataset obo:RO_0002353 ?station .
+    ?station rdfs:label ?stationLabel .
+    ?station rdf:type ec:Station .
+    ?dataset cito:isCitedAsDataSourceBy ?citation .
+    ?citation rdfs:label ?citationLabel .}
+WHERE
+  {   { ?dataset rdf:type vivo:Dataset .
+        ?dataset vitro:mostSpecificType ?mostSpecificType .
+        ?dataset rdfs:label ?label
+      }
+    UNION
+      { ?dataset rdf:type vivo:Dataset .
+        ?dataset bibo:doi ?doi
+      }
+    UNION
+      { ?dataset rdf:type vivo:Dataset .
+        ?dataset bibo:abstract ?abstract
+      }
+    UNION
+      { ?dataset rdf:type vivo:Dataset .
+        ?dataset vivo:dateTimeValue ?publicationObj .
+        ?publicationObj vivo:dateTime ?publicationYear
+      }
+    UNION
+      { ?dataset rdf:type vivo:Dataset .
+        ?dataset vivo:relatedBy ?authorship .
+        ?authorship rdf:type vivo:Authorship .
+        ?authorship rdf:type ?authorshipType .
+        ?authorship vivo:relates ?author .
+        ?author rdf:type ?authorType .
+        ?author rdfs:label ?authorLabel
+      }
+    UNION
+      { ?dataset rdf:type vivo:Dataset .
+        ?dataset vivo:relatedBy ?authorship .
+        ?authorship rdf:type vivo:Authorship .
+        ?authorship vivo:rank ?rank
+      }
+    UNION
+      { ?dataset rdf:type vivo:Dataset .
+        ?dataset vivo:relatedBy ?authorship .
+        ?authorship rdf:type vivo:Authorship .
+        ?authorship vivo:relates ?author .
+        ?author rdf:type vcard:Individual .
+        ?author rdf:type ?authorType .
+        ?author vcard:hasName ?vcardName .
+        ?vcardName vcard:familyName ?vcardfName
+      }
+    UNION
+      { ?dataset rdf:type vivo:Dataset .
+        ?dataset vivo:relatedBy ?authorship .
+        ?authorship rdf:type vivo:Authorship .
+        ?authorship vivo:relates ?author .
+        ?author rdf:type vcard:Individual .
+        ?author rdf:type ?authorType .
+        ?author vcard:hasName ?vcardName .
+        ?vcardName vcard:givenName ?vcardgName
+      }
+    UNION
+      { ?dataset rdf:type vivo:Dataset .
+        ?dataset ec:hasDatasetType ?dsType .
+        ?dsType rdf:type ?what .
+        ?dsType rdfs:label ?dataType
+      }
+    UNION
+      { ?dataset rdf:type vivo:Dataset .
+        ?dataset obo:RO_0002353 ?station .
+        ?station rdf:type ec:Station .
+        ?station rdfs:label ?stationLabel
+      }
+    UNION
+      { ?dataset rdf:type vivo:Dataset .
+        ?dataset cito:isCitedAsDataSourceBy ?citation .
+        ?citation rdfs:label ?citationLabel
+      }
+  }

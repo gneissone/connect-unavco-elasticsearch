@@ -28,6 +28,7 @@ class Ingest:
         parser.add_argument("--altmetric", default=False, action="store_true", 
                             help="Attempt to grab Altmetric scores for DOIs.")  
         parser.add_argument( '--sparql', default='http://vivodev.int.unavco.org/vivo/api/sparqlQuery', help='sparql endpoint' )
+        parser.add_argument( '--limit', default=None, help='chunk size for sparql queries.' )
         parser.add_argument( 'out', metavar='OUT', help='elasticsearch bulk ingest file')
 
         args = parser.parse_args()
@@ -70,6 +71,7 @@ class Ingest:
         self.publish = args.publish
         self.rebuild = args.rebuild
         self.endpoint = args.sparql
+        self.limit = int(args.limit) if args.limit else None
         self.altmetric = args.altmetric
 
         if args.mapping:
@@ -125,10 +127,15 @@ class Ingest:
         """
         pool = multiprocessing.Pool( self.threads )
         sparql = self.endpoint
+
+        entities = self.get_entities()
+
+        self.graph = self.construct_graph()
         #for object in self.get_entities():
         #    json_entity = self.process_entity( object )
+
         params = [(object,None)
-                  for object in self.get_entities()]
+                  for object in entities]
         self.records = list(itertools.chain.from_iterable(pool.starmap(self.process_entity, params)))
 
     def publish_to_es( self, bulk ):
@@ -180,3 +187,25 @@ class Ingest:
         query = load_file( self.get_describe_query_file() )
         query = query.replace( self.get_subject_name() + ' ', "<" + entity + "> " )
         return sparql_describe( self.endpoint, query )
+
+    # construct_graph: helper function for populating the graph
+    def construct_graph( self ):
+        graph = Graph()
+        query = load_file( self.get_construct_query_file() )
+        if self.limit:
+            offset=0
+            query += "LIMIT {} OFFSET {}".format(str(self.limit),str(offset))
+            while True:
+                r = sparql_construct( self.endpoint, query )
+                graph += r
+                offset += self.limit
+                query = query.replace( "OFFSET {}".format(str(offset-self.limit)), "OFFSET {}".format(str(offset)) )
+                #print(len(graph))
+                #print(len(r))
+                if len(r) == 0:
+                    break
+
+        else:
+            graph = sparql_construct( self.endpoint, query )
+
+        return graph

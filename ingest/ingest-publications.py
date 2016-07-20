@@ -19,6 +19,7 @@ from Ingest import *
 
 LIST_QUERY_FILE = "queries/listPublications.rq"
 DESCRIBE_QUERY_FILE = "queries/describePublication.rq"
+CONSTRUCT_QUERY_FILE = "queries/constructPublication.rq"
 SUBJECT_NAME = "?publication"
 INDEX = "unavco"
 TYPE = "publication"
@@ -68,6 +69,9 @@ class PublicationIngest(Ingest):
     def get_describe_query_file(self):
         return DESCRIBE_QUERY_FILE
 
+    def get_construct_query_file(self):
+        return CONSTRUCT_QUERY_FILE
+
     def get_subject_name(self):
         return SUBJECT_NAME
 
@@ -78,9 +82,9 @@ class PublicationIngest(Ingest):
         return TYPE
 
     def create_document( self, entity ):
-        graph = self.describe_entity( entity )
+        #graph = self.describe_entity( entity )
         #print(graph.serialize(format='turtle'))
-        ds = graph.resource( entity )
+        ds = self.graph.resource( entity )
         #print(graph.serialize(format='turtle'))
         try:
             title = ds.label().toPython()
@@ -90,11 +94,12 @@ class PublicationIngest(Ingest):
 
         doc = {"uri": entity, "title": title}
 
-        most_specific_type = list(ds.objects(VITRO.mostSpecificType))
+        most_specific_type = list(ds.objects(RDF.type))
         most_specific_type = most_specific_type[0].label().toPython() \
             if most_specific_type and most_specific_type[0].label() \
             else None
         if most_specific_type:
+            print(most_specific_type)
             doc.update({"mostSpecificType": most_specific_type})
         doi = list(ds.objects(BIBO.doi))
         doi = doi[0].toPython() if doi else None
@@ -153,7 +158,6 @@ class PublicationIngest(Ingest):
         presented_at = get_presented_at(ds)
         if presented_at:
             doc.update({"presentedAt": presented_at})
-
         return doc
 
 

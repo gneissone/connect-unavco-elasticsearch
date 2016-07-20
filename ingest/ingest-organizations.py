@@ -39,6 +39,10 @@ class OrganizationIngest(Ingest):
     def get_describe_query_file(self):
         return DESCRIBE_QUERY_FILE
 
+    # The query is small enough that we can use the DESCRIBE version without breaking things
+    def get_construct_query_file(self):
+        return DESCRIBE_QUERY_FILE
+
     def get_subject_name(self):
         return SUBJECT_NAME
 
@@ -49,9 +53,9 @@ class OrganizationIngest(Ingest):
         return TYPE
 
     def create_document( self, entity ):
-        graph = self.describe_entity( entity )
+        #graph = self.describe_entity( entity )
         #print(graph.serialize(format='turtle'))
-        ds = graph.resource( entity )
+        ds = self.graph.resource( entity )
 
         try:
             title = ds.label().toPython()

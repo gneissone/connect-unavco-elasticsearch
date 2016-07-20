@@ -18,6 +18,7 @@ from Ingest import *
 
 LIST_QUERY_FILE = "queries/listGrants.rq"
 DESCRIBE_QUERY_FILE = "queries/describeGrants.rq"
+CONSTRUCT_QUERY_FILE = "queries/constructGrants.rq"
 SUBJECT_NAME = "?grant"
 INDEX = "unavco"
 TYPE = "grant"
@@ -28,7 +29,7 @@ MAPPING = "mappings/grant.json"
 # Overwrite the subclass attribute 'MAPPING' and the create_x_doc method with appropriate implementations.
 # (Existing examples are helpful.)
 
-class DatasetIngest(Ingest):
+class GrantIngest(Ingest):
 
     def get_mapping( self ):
         return MAPPING
@@ -38,6 +39,9 @@ class DatasetIngest(Ingest):
 
     def get_describe_query_file(self):
         return DESCRIBE_QUERY_FILE
+
+    def get_construct_query_file(self):
+        return CONSTRUCT_QUERY_FILE
 
     def get_subject_name(self):
         return SUBJECT_NAME
@@ -49,9 +53,9 @@ class DatasetIngest(Ingest):
         return TYPE
 
     def create_document( self, entity ):
-        graph = self.describe_entity( entity )
+        #graph = self.describe_entity( entity )
         #input(graph.serialize(format='turtle'))
-        ds = graph.resource( entity )
+        ds = self.graph.resource( entity )
 
         try:
             title = ds.label().toPython()
@@ -77,11 +81,6 @@ class DatasetIngest(Ingest):
         abstract = abstract[0].toPython() if abstract else None
         if abstract:
             doc.update({"abstract": abstract})
-
-        # cites
-        cites = get_cites(ds)
-        if cites:
-            doc.update({"citations": cites})
 
         # PIs: if none, will return an empty list []
         pi = get_pi(ds,VIVO.PrincipalInvestigatorRole)
@@ -120,5 +119,5 @@ class DatasetIngest(Ingest):
 # Third, pass the name of the sub-class just created above to argument 'XIngest=' below in the usage of main().
 #       E.g. main(..., XIngest=DatasetIngest)
 if __name__ == "__main__":
-    ingestSomething = DatasetIngest()
+    ingestSomething = GrantIngest()
     ingestSomething.ingest()
