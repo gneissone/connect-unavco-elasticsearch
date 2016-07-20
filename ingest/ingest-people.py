@@ -62,10 +62,7 @@ class PersonIngest(Ingest):
 
         doc = {"uri": entity, "name": title}
 
-        most_specific_type = list(ds.objects(VITRO.mostSpecificType))
-        most_specific_type = most_specific_type[0].label().toPython() \
-            if most_specific_type and most_specific_type[0].label() \
-            else None
+        most_specific_type = get_most_specific_type(ds)
         if most_specific_type:
             doc.update({"mostSpecificType": most_specific_type})
             

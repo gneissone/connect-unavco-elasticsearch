@@ -188,6 +188,19 @@ def get_id(dco_id):
     return dco_id[dco_id.rfind('/') + 1:]
 
 
+def doesnt_have_label(resource, label):
+    if str(resource.label()) != str(label):
+        return True
+    return False
+
+def get_most_specific_type(person):
+    return Maybe.of(person).stream() \
+        .flatmap(lambda p: p.objects(VITRO.mostSpecificType)) \
+        .filter(lambda o: doesnt_have_label(o, 'Person')) \
+        .map(lambda t: t.label()) \
+        .filter(non_empty_str) \
+        .list()
+
 def get_dco_communities(x):
     return Maybe.of(x).stream() \
         .flatmap(lambda p: p.objects(DCO.associatedDCOCommunity)) \
