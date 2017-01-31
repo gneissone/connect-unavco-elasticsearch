@@ -29,7 +29,7 @@ MAPPING = "mappings/organization.json"
 # (Existing examples are helpful.)
 
 class OrganizationIngest(Ingest):
-    
+
     def get_mapping( self ):
         return MAPPING
 
@@ -63,7 +63,7 @@ class OrganizationIngest(Ingest):
             print( "missing title:", entity )
             return {}
 
-        doc = {"uri": entity, "name": title}
+        doc = {"uri": entity, "name": title, "label": title}
 
         most_specific_type = list(ds.objects(VITRO.mostSpecificType))
         most_specific_type = most_specific_type[0].label().toPython() \
@@ -72,12 +72,12 @@ class OrganizationIngest(Ingest):
         if most_specific_type:
             doc.update({"mostSpecificType": most_specific_type})
 
-        org_role = list(ds.objects(OBO.RO_0000053))        
+        org_role = list(ds.objects(OBO.RO_0000053))
         for role in org_role:
             for role_type in role[RDF.type]:
                 if role_type.identifier == VIVO.MemberRole:
                     doc.update({"membershipType": "Member"})
-                    break 
+                    break
                 elif role_type.identifier == VLOCAL.AssociateMemberRole:
                     doc.update({"membershipType": "Associate Member"})
                     break
@@ -92,7 +92,7 @@ class OrganizationIngest(Ingest):
         # authors: if none, will return an empty list []
         people = get_employees(ds)
         doc.update({"people": people})
-        
+
         latlon = get_latlon(ds)
         if latlon:
             doc.update({"location": latlon})

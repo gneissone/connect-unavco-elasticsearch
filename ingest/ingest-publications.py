@@ -29,7 +29,7 @@ ALTMETRIC_API_KEY = '***REMOVED***'
 def get_altmetric_for_doi(ALTMETRIC_API_KEY, doi):
     if doi:
         query = 'http://api.altmetric.com/v1/doi/' + doi + '?key=' + ALTMETRIC_API_KEY
-        
+
         r = requests.get(query)
         if r.status_code == 200:
             try:
@@ -48,9 +48,9 @@ def get_altmetric_for_doi(ALTMETRIC_API_KEY, doi):
             return None
         else:
             logging.debug("No altmetric record or API error. ")
-            return None  
+            return None
     else:
-        return None        
+        return None
 
 
 # Second, extend the Ingest base class to class 'XIngest' below, where X is the singular form, with capitalized
@@ -92,7 +92,7 @@ class PublicationIngest(Ingest):
             print( "missing title:", entity )
             return {}
 
-        doc = {"uri": entity, "title": title}
+        doc = {"uri": entity, "title": title, "label": title}
 
         most_specific_type = list(ds.objects(RDF.type))
         most_specific_type = most_specific_type[0].label().toPython() \
@@ -113,7 +113,7 @@ class PublicationIngest(Ingest):
         abstract = abstract[0].toPython() if abstract else None
         if abstract:
             doc.update({"abstract": abstract})
-            
+
         if abstract and not title:
             print(ds + 'is all jacked up')
 
@@ -131,12 +131,12 @@ class PublicationIngest(Ingest):
         cites = get_cites(ds)
         if cites:
             doc.update({"citations": cites})
-            
+
         # related stations
         rel_stations = get_rel_stations(ds)
         if rel_stations:
             doc.update({"stations": rel_stations})
-            
+
         # publication venue
         pub_venue = get_pub_venue(ds)
         if pub_venue:
@@ -145,16 +145,16 @@ class PublicationIngest(Ingest):
         # authors: if none, will return an empty list []
         authors = get_authors(ds)
         doc.update({"authors": authors})
-        
+
         # date: if none, will return an empty list []
         publication_year = get_pub_year(ds)
         if publication_year:
             doc.update({"publicationYear": (publication_year)})
-            
+
         subject_areas = get_subject_areas(ds)
         if subject_areas:
             doc.update({"subjectArea": subject_areas})
-            
+
         presented_at = get_presented_at(ds)
         if presented_at:
             doc.update({"presentedAt": presented_at})

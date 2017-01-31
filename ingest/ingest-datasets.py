@@ -39,7 +39,7 @@ class DatasetIngest(Ingest):
 
     def get_describe_query_file(self):
         return DESCRIBE_QUERY_FILE
-    
+
     def get_construct_query_file(self):
         return CONSTRUCT_QUERY_FILE
 
@@ -64,7 +64,7 @@ class DatasetIngest(Ingest):
             print( "missing title:", entity )
             return {}
 
-        doc = {"uri": entity, "title": title}
+        doc = {"uri": entity, "title": title, "label": title}
 
         most_specific_type = list(ds.objects(VITRO.mostSpecificType))
         most_specific_type = most_specific_type[0].label().toPython() \
@@ -92,7 +92,7 @@ class DatasetIngest(Ingest):
         cites = get_cites(ds)
         if cites:
             doc.update({"citations": cites})
-            
+
         # related stations
         rel_stations = get_rel_stations(ds)
         if rel_stations:
@@ -101,7 +101,7 @@ class DatasetIngest(Ingest):
         # authors: if none, will return an empty list []
         authors = get_authors(ds)
         doc.update({"authors": authors})
-        
+
         # date: if none, will return an empty list []
         publication_year = get_pub_year(ds)
         if publication_year:

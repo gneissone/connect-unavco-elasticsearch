@@ -61,7 +61,7 @@ class StationIngest(Ingest):
             print( "missing title:", entity )
             return {}
 
-        doc = {"uri": entity, "name": title}
+        doc = {"uri": entity, "name": title, "label": title}
 
         most_specific_type = list(ds.objects(VITRO.mostSpecificType))
         most_specific_type = most_specific_type[0].label().toPython() \
@@ -69,7 +69,7 @@ class StationIngest(Ingest):
             else None
         if most_specific_type:
             doc.update({"mostSpecificType": most_specific_type})
-            
+
         fourChId = list(ds.objects(VLOCAL.has4CharID))
         fourChId = fourChId[0].value \
             if fourChId and fourChId[0].value \
@@ -86,20 +86,20 @@ class StationIngest(Ingest):
         start_date = get_start_date(ds)
         if start_date:
             doc.update({"startDate": (start_date)})
-            
+
         thumbnail = get_thumbnail(ds)
         if thumbnail:
             doc.update({"thumbnail": thumbnail})
-            
+
         # date: if none, will return an empty list []
         retirement_date = get_pub_year(ds)
         if retirement_date:
             doc.update({"retirementDate": (retirement_date)})
-        
+
         datasets = get_rel_datasets(ds)
         if datasets:
             doc.update({"relatedDatasets": datasets})
-        
+
         # Locations
         state = get_location(ds,'http://vivoweb.org/ontology/core#StateOrProvince')
         if state:
@@ -111,7 +111,7 @@ class StationIngest(Ingest):
 
         continent = get_location(ds,'http://vivoweb.org/ontology/core#Continent')
         if continent:
-            doc.update({"continent": (continent)})   
+            doc.update({"continent": (continent)})
 
         return doc
 

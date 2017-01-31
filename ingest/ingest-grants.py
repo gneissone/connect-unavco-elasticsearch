@@ -63,7 +63,7 @@ class GrantIngest(Ingest):
             print( "missing title:", entity )
             return {}
 
-        doc = {"uri": entity, "title": title}
+        doc = {"uri": entity, "title": title, "label": title}
 
         most_specific_type = list(ds.objects(VITRO.mostSpecificType))
         most_specific_type = most_specific_type[0].label().toPython() \
@@ -96,17 +96,17 @@ class GrantIngest(Ingest):
         publication_year = get_pub_year(ds)
         if publication_year:
             doc.update({"publicationYear": (publication_year)})
-            
+
         # assigned_by: organization awarding grant
         assigned_by = get_assigned_by(ds)
         if assigned_by:
             doc.update({"assignedBy": (assigned_by)})
-            
+
         # admin_org: grant administrator organization, usually same as PIs org
         admin_org = get_grant_admin(ds)
         if admin_org:
             doc.update({"administratingOrg": (admin_org)})
-            
+
         # assigned_by: organization awarding grant
         start_date = get_start_date(ds)
         if start_date:

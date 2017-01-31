@@ -19,6 +19,9 @@
           }
         }
       },
+      "label": {
+        "type": "string"
+      },
       "subjectArea":{
         "properties":{
           "name":{

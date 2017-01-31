@@ -38,7 +38,7 @@ class PersonIngest(Ingest):
 
     def get_describe_query_file(self):
         return DESCRIBE_QUERY_FILE
-        
+
     def get_construct_query_file(self):
         return DESCRIBE_QUERY_FILE
 
@@ -60,16 +60,16 @@ class PersonIngest(Ingest):
             print( "missing title:", entity )
             return {}
 
-        doc = {"uri": entity, "name": title}
+        doc = {"uri": entity, "name": title, "label": title}
 
         most_specific_type = get_most_specific_type(ds)
         if most_specific_type:
             doc.update({"mostSpecificType": most_specific_type})
-            
+
         orcid = get_orcid(ds)
         if orcid:
             doc.update({"orcid": orcid})
-            
+
         given_name = get_given_name(ds)
         if given_name:
             doc.update({"givenName": given_name})
@@ -85,10 +85,10 @@ class PersonIngest(Ingest):
         research_areas = get_research_areas(ds)
         if research_areas:
             doc.update({"researchArea": research_areas})
-            
+
         expertise_areas = get_expertise_areas(ds)
         if expertise_areas:
-            doc.update({"expertiseArea": expertise_areas})        
+            doc.update({"expertiseArea": expertise_areas})
 
         organizations = get_organizations(ds)
         if organizations:
@@ -98,12 +98,12 @@ class PersonIngest(Ingest):
         if thumbnail:
             doc.update({"thumbnail": thumbnail})
 
-            
+
         thumbnail = get_thumbnail(ds)
         if thumbnail:
             doc.update({"thumbnail": thumbnail})
-            
-        
+
+
 
         return doc
 

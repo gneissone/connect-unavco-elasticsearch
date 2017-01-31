@@ -46,6 +46,9 @@
           }
         }
       },
+      "label": {
+        "type": "string"
+      },
       "orcid": {
         "type": "string",
         "index": "no"

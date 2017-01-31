@@ -143,6 +143,9 @@
       },
       "uri": {
         "type": "string"
+      },
+      "label": {
+        "type": "string"
       }
     }
   }
