@@ -124,7 +124,7 @@ def sparql_describe( endpoint, query ):
         return r
     except RuntimeWarning:
         pass
-        
+
 # describe: helper function for describe_entity
 def sparql_construct( endpoint, query ):
     """
@@ -219,7 +219,7 @@ def get_cites(x):
         .flatmap(lambda p: p.objects(CITO.isCitedAsDataSourceBy)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
-        
+
 def get_rel_stations(x):
     return Maybe.of(x).stream() \
         .flatmap(lambda p: p.objects(OBO.RO_0002353)) \
@@ -237,13 +237,13 @@ def get_projects_of_dataset(x):
         .flatmap(lambda p: p.objects(DCO.isDatasetOf)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
-        
+
 def get_pub_venue(x):
     return Maybe.of(x).stream() \
         .flatmap(lambda p: p.objects(VIVO.hasPublicationVenue)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
-        
+
 def get_isni(x):
     return Maybe.of(x).stream() \
         .flatmap(lambda p: p.objects(VLOCAL.isni)) \
@@ -266,7 +266,7 @@ def get_latlon(x):
         .flatmap(lambda p: p.objects(WGS84.long)) \
         .filter(non_empty_str) \
         .one().value
-        
+
     if lat and lon:
         return({"lat": float(lat), "lon": float(lon)})
     else:
@@ -339,7 +339,7 @@ def get_authors(ds):
             author = author[0]
         vcard = [person for person in authorship.objects(VIVO.relates) if has_type(person, VCARD.Individual)]
         if vcard:
-            vcard = vcard[0]    
+            vcard = vcard[0]
         if author:
             name = author.label().toPython()
             obj = {"uri": str(author.identifier), "name": name}
@@ -389,7 +389,7 @@ def get_authors(ds):
         print("missing rank for one or more authors of:", ds)
 
     return authors
-    
+
 def get_employees(ds):
     pers = []
     ended = False
@@ -425,15 +425,15 @@ def get_employees(ds):
                 .flatmap(lambda r: r.objects(VIVO.relates)) \
                 .filter(lambda o: has_type(o, FOAF.Person)) \
                 .filter(has_label) \
-                .map(lambda o: {"uri": str(o.identifier), "name": str(o.label()), 
+                .map(lambda o: {"uri": str(o.identifier), "name": str(o.label()),
                 "unavcoMemberRep": memberRep, "position": str(role.label())}) \
                 .one().value
 
             if per:
                 pers.append(per)
 
-    return pers    
-    
+    return pers
+
 # get_authors: object -> [authors] for objects such as: datasets, publications, ...
 def get_pub_year(ds):
     dtList = []
@@ -462,8 +462,16 @@ def get_data_typesasdasdad(ds):
         return data_type
     else:
         return None
-        
-        
+
+
+def get_publisher(ds):
+    return Maybe.of(ds).stream() \
+            .flatmap(lambda dti: dti.objects(VIVO.hasPublicationVenue)) \
+            .flatmap(lambda sd: sd.objects(VIVO.publisher)) \
+            .filter(has_label) \
+            .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
+
+
 def get_subject_areas(ds):
     subject_areas = []
     for subject_area in ds.objects(VIVO.hasSubjectArea):
@@ -471,11 +479,9 @@ def get_subject_areas(ds):
         if subject_area.label():
             sa.update({"name": subject_area.label().toPython()})
         subject_areas.append(sa)
-
-
     return subject_areas
-    
-    
+
+
 def get_sub_orgs(x):
     return Maybe.of(x).stream() \
         .flatmap(lambda p: p.objects(OBO.BFO_0000051)) \
@@ -495,7 +501,7 @@ def get_orcid(person):
         .flatmap(lambda p: p.objects(VIVO.orcidId)) \
         .map(lambda o: o.identifier) \
         .map(lambda o: o[o.rfind('/') + 1:]).one().value
-    
+
 # get_distributions: object -> [distributions] for objects such as: datasets, publications, ...
 def get_distributions(ds):
     distributions = []
@@ -522,14 +528,14 @@ def get_distributions(ds):
         distributions.append(obj)
 
     return distributions
-    
+
 def get_grant_admin(x):
     return Maybe.of(x).stream() \
              .flatmap(lambda r: r.objects(VIVO.relates)) \
              .filter(lambda o: has_type(o, FOAF.Organization)) \
              .filter(has_label) \
              .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
-             
+
 def get_assigned_by(x):
     return Maybe.of(x).stream() \
              .flatmap(lambda r: r.objects(VIVO.assignedBy)) \
@@ -560,7 +566,7 @@ def get_location(ds,level='http://vivoweb.org/ontology/core#GeographicLocation')
         .filter(lambda partof: has_most_specific_type(partof, level)) \
         .filter(has_label) \
         .map(lambda r: {"uri": str(r.identifier), "name": str(r.label())}).list()
-        
+
 def get_given_name(person):
     return Maybe.of(person).stream() \
         .flatmap(lambda p: p.objects(OBO.ARG_2000028)) \
@@ -577,7 +583,7 @@ def get_family_name(person):
         .flatmap(lambda n: n.objects(VCARD.familyName)) \
         .filter(non_empty_str) \
         .one().value
-        
+
 def get_email(person):
     return Maybe.of(person).stream() \
         .flatmap(lambda p: p.objects(OBO.ARG_2000028)) \
@@ -586,7 +592,7 @@ def get_email(person):
         .flatmap(lambda e: e.objects(VCARD.email)) \
         .filter(non_empty_str) \
         .one().value
-        
+
 def get_research_areas(person):
     return Maybe.of(person).stream() \
         .flatmap(lambda p: p.objects(VIVO.hasResearchArea)) \

@@ -13,7 +13,7 @@ PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
 PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX  vivo: <http://vivoweb.org/ontology/core#>
 
-CONSTRUCT 
+CONSTRUCT
   { ?publication rdf:type ?pubType .
     ?pubType rdfs:label ?pubTypeLabel .
     ?publication vitro:mostSpecificType ?mostSpecificType .
@@ -26,6 +26,8 @@ CONSTRUCT
     ?event rdfs:label ?eventLabel .
     ?publication vivo:hasPublicationVenue ?venue .
     ?venue rdfs:label ?venueLabel .
+    ?venue vivo:publisher ?publisher .
+    ?publisher rdfs:label ?publisherLabel .
     ?publication vivo:hasSubjectArea ?subjectArea .
     ?subjectArea rdfs:label ?subjectAreaLabel .
     ?publication cito:citesAsDataSource ?citation .
@@ -41,7 +43,7 @@ CONSTRUCT
     ?vcardName vcard:givenName ?vcardgName .
     ?vcardName vcard:familyName ?vcardfName .}
 WHERE
-  { GRAPH <http://vitro.mannlib.cornell.edu/default/vitro-kb-2> { 
+  { GRAPH <http://vitro.mannlib.cornell.edu/default/vitro-kb-2> {
    { ?publication rdf:type ?pubType .
       ?pubType rdfs:label ?pubTypeLabel .
         ?publication rdfs:label ?label
@@ -68,6 +70,12 @@ WHERE
       { ?publication rdf:type ?pubType .
         ?publication vivo:hasPublicationVenue ?venue .
         ?venue rdfs:label ?venueLabel
+      }
+    UNION
+      { ?publication rdf:type ?pubType .
+        ?publication vivo:hasPublicationVenue ?venue .
+        ?venue vivo:publisher ?publisher .
+        ?publisher rdfs:label ?publisherLabel
       }
     UNION
       { ?publication rdf:type ?pubType .
@@ -102,17 +110,8 @@ WHERE
         ?author rdf:type vcard:Individual .
         ?author rdf:type ?authorType .
         ?author vcard:hasName ?vcardName .
-        ?vcardName vcard:familyName ?vcardfName
-      }
-    UNION
-      { ?publication rdf:type ?pubType .
-        ?publication vivo:relatedBy ?authorship .
-        ?authorship rdf:type vivo:Authorship .
-        ?authorship vivo:relates ?author .
-        ?author rdf:type vcard:Individual .
-        ?author rdf:type ?authorType .
-        ?author vcard:hasName ?vcardName .
+        ?vcardName vcard:familyName ?vcardfName .
         ?vcardName vcard:givenName ?vcardgName
       }
-  
-  }   FILTER ( ( ( ( ( ( ?pubType = bibo:AcademicArticle ) || ( ?pubType = vivo:Abstract ) ) || ( ?pubType = bibo:Book ) ) || ( ?pubType = bibo:Chapter ) ) || ( ?pubType = bibo:Thesis ) ) || ( ?pubType = vivo:ConferencePaper ) ) }
+
+  }   FILTER ( ( ( ( ( ( ( ?pubType = bibo:AcademicArticle ) || ( ?pubType = vivo:Abstract ) ) || ( ?pubType = bibo:Article ) ) || ( ?pubType = bibo:Book ) ) || ( ?pubType = bibo:Chapter ) ) || ( ?pubType = bibo:Thesis ) ) || ( ?pubType = vivo:ConferencePaper ) ) }

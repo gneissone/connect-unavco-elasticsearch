@@ -142,6 +142,11 @@ class PublicationIngest(Ingest):
         if pub_venue:
             doc.update({"publishedIn": pub_venue})
 
+        # publisher
+        publisher = get_publisher(ds)
+        if publisher:
+            doc.update({"publisher": publisher})
+
         # authors: if none, will return an empty list []
         authors = get_authors(ds)
         doc.update({"authors": authors})
