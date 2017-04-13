@@ -25,6 +25,7 @@ CITO = Namespace("http://purl.org/spar/cito/")
 VCARD = Namespace("http://www.w3.org/2006/vcard/ns#")
 VLOCAL = Namespace("http://connect.unavco.org/ontology/vlocal#")
 WGS84 = Namespace("http://www.w3.org/2003/01/geo/wgs84_pos#")
+VLOCAL = Namespace("http://connect.unavco.org/ontology/vlocal#")
 
 # Auxilary class for those helper functions getting attributes of objects
 from Maybe import *

@@ -12,6 +12,7 @@ PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
 PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
 PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX  vivo: <http://vivoweb.org/ontology/core#>
+PREFIX  vlocal: <http://connect.unavco.org/ontology/vlocal#>
 
 CONSTRUCT
   { ?publication rdf:type ?pubType .
@@ -25,6 +26,7 @@ CONSTRUCT
     ?publication bibo:presentedAt ?event .
     ?event rdfs:label ?eventLabel .
     ?publication vivo:hasPublicationVenue ?venue .
+    ?publication vlocal:timesCited ?timesCited .
     ?venue rdfs:label ?venueLabel .
     ?venue vivo:publisher ?publisher .
     ?publisher rdfs:label ?publisherLabel .
@@ -70,6 +72,10 @@ WHERE
       { ?publication rdf:type ?pubType .
         ?publication vivo:hasPublicationVenue ?venue .
         ?venue rdfs:label ?venueLabel
+      }
+    UNION
+      { ?publication rdf:type ?pubType .
+        ?publication vlocal:timesCited ?timesCited
       }
     UNION
       { ?publication rdf:type ?pubType .

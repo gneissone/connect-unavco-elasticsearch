@@ -35,7 +35,7 @@ def get_altmetric_for_doi(ALTMETRIC_API_KEY, doi):
             try:
                 json = r.json()
                 time.sleep(1)
-                print(json['score'])
+                # print(json['score'])
                 return json['score']
             except ValueError:
                 logging.exception("Could not parse Altmetric response. ")
@@ -99,7 +99,7 @@ class PublicationIngest(Ingest):
             if most_specific_type and most_specific_type[0].label() \
             else None
         if most_specific_type:
-            print(most_specific_type)
+            # print(most_specific_type)
             doc.update({"mostSpecificType": most_specific_type})
         doi = list(ds.objects(BIBO.doi))
         doi = doi[0].toPython() if doi else None
@@ -108,6 +108,11 @@ class PublicationIngest(Ingest):
         if self.altmetric:
             ams = get_altmetric_for_doi(ALTMETRIC_API_KEY, doi)
             doc.update({"amscore": ams})
+
+        timesCited = list(ds.objects(VLOCAL.timesCited))
+        timesCited = timesCited[0].toPython() if timesCited else None
+        if timesCited:
+            doc.update({"timesCited": timesCited})
 
         abstract = list(ds.objects(BIBO.abstract))
         abstract = abstract[0].toPython() if abstract else None
