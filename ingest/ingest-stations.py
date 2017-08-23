@@ -9,10 +9,12 @@ import pydoc
 from ingestHelpers import *
 from Ingest import *
 
-# Please follow the comments below to create, customize and run the ingest process in you case.
+# Please follow the comments below to create, customize and run the ingest
+# process in you case.
 
-# Start by create a copy of this script and rename it as appropriate. A uniform nomenclature is
-# ingest-x.py where x is the plural form of the 'type' of search document generated.
+# Start by create a copy of this script and rename it as appropriate. A
+# uniform nomenclature is ingest-x.py where x is the plural form of the
+# 'type' of search document generated.
 
 # First, change these case-varying variables below for: dataset ingest
 
@@ -24,14 +26,15 @@ INDEX = "unavco"
 TYPE = "station"
 MAPPING = "mappings/station.json"
 
-# Second, extend the Ingest base class to class 'XIngest' below, where X is the singular form, with capitalized
-# initial letter, of the 'type' of search document generated. E.g. DatasetIngest, ProjectIngest, etc.
-# Overwrite the subclass attribute 'MAPPING' and the create_x_doc method with appropriate implementations.
-# (Existing examples are helpful.)
+# Second, extend the Ingest base class to class 'XIngest' below,
+# where X is the singular form, with capitalized initial letter, of the 'type'
+# of search document generated. E.g. DatasetIngest, ProjectIngest, etc.
+# Overwrite the subclass attribute 'MAPPING' and the create_x_doc method with
+# appropriate implementations. (Existing examples are helpful.)
+
 
 class StationIngest(Ingest):
-
-    def get_mapping( self ):
+    def get_mapping(self):
         return MAPPING
 
     def get_list_query_file(self):
@@ -52,13 +55,13 @@ class StationIngest(Ingest):
     def get_type(self):
         return TYPE
 
-    def create_document( self, entity ):
-        ds = self.graph.resource( entity )
+    def create_document(self, entity):
+        ds = self.graph.resource(entity)
 
         try:
             title = ds.label().toPython()
         except AttributeError:
-            print( "missing title:", entity )
+            print("missing title:", entity)
             return {}
 
         doc = {"uri": entity, "name": title, "label": title}
@@ -78,9 +81,9 @@ class StationIngest(Ingest):
             doc.update({"4ChId": fourChId})
 
         # PIs: if none, will return an empty list []
-        pi = get_pi(ds,VIVO.PrincipalInvestigatorRole)
+        pi = get_pi(ds, VIVO.PrincipalInvestigatorRole)
         doc.update({"principalInvestigators": pi})
-        copi = get_pi(ds,VIVO.CoPrincipalInvestigatorRole)
+        copi = get_pi(ds, VIVO.CoPrincipalInvestigatorRole)
         doc.update({"coPrincipalInvestigators": copi})
 
         start_date = get_start_date(ds)
@@ -89,7 +92,8 @@ class StationIngest(Ingest):
 
         thumbnail = get_thumbnail(ds)
         if thumbnail:
-            doc.update({"thumbnail": thumbnail})
+            doc.update({"thumbnail":
+                       thumbnail.replace('http://connect.unavco.org', '')})
 
         # date: if none, will return an empty list []
         retirement_date = get_pub_year(ds)
@@ -101,23 +105,25 @@ class StationIngest(Ingest):
             doc.update({"relatedDatasets": datasets})
 
         # Locations
-        state = get_location(ds,'http://vivoweb.org/ontology/core#StateOrProvince')
+        state = get_location(ds, 'http://vivoweb.org/ontology/core#StateOr \
+                                  Province')
         if state:
             doc.update({"state": (state)})
 
-        country = get_location(ds,'http://vivoweb.org/ontology/core#Country')
+        country = get_location(ds, 'http://vivoweb.org/ontology/core#Country')
         if country:
             doc.update({"country": (country)})
 
-        continent = get_location(ds,'http://vivoweb.org/ontology/core#Continent')
+        continent = get_location(ds, 'http://vivoweb.org/ontology/core \
+                                      #Continent')
         if continent:
             doc.update({"continent": (continent)})
 
         return doc
 
 
-
-# Third, pass the name of the sub-class just created above to argument 'XIngest=' below in the usage of main().
+# Third, pass the name of the sub-class just created above to
+# argument 'XIngest=' below in the usage of main().
 #       E.g. main(..., XIngest=StationIngest)
 if __name__ == "__main__":
     ingestSomething = StationIngest()
