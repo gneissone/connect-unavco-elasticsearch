@@ -88,12 +88,14 @@ Documentation on ES schemas and how a mapping can be customized are available at
 
 The ingest scripts will push a customized mapping during the publish phase if --mapping is specified with a path to the mapping file.
 
-Mapping files may contain references to custom analyzers, which tell Elasticsearch how to index text. The person.json map requires a 'sort' type, which has been set up at Connect UNAVCO to use the [ICU analyzer](https://github.com/elastic/elasticsearch-analysis-icu). 1. Install the plugin following instructions on the ICU analyzer GitHub page
-2. Close the index with `curl -XPOST 'localhost:9200/unavco/_close'` 
-3. Import the analyzer settings located in config/settings.json with `curl -XPUT 'localhost:9200/unavco/_settings?pretty' --data-binary @config/settings.json` 
-4. Re-open the index with `curl -XPOST 'localhost:9200/unavco/_open'` 
+Mapping files may contain references to custom analyzers, which tell Elasticsearch how to index text. Installing custom analyzers is easy in Elasticsearch 5. To install the ICU analyzer plugin used in some mappings, simply navigate to your Elasticsearch home directory and run `bin/elasticsearch-plugin install analysis-icu`
 
-Likewise, the publication.json mapping file references a 'folding' analyzer, which is also defined in settings.json. The asciifolding filter it uses is built into elasticsearch already.
+To register additional analyzers defined in config/settings.json:
+1. Close the index with `curl -XPOST 'localhost:9200/unavco/_close'` 
+2. Import the analyzer settings located in config/settings.json with `curl -XPUT 'localhost:9200/unavco/_settings?pretty' --data-binary @config/settings.json` 
+3. Re-open the index with `curl -XPOST 'localhost:9200/unavco/_open'` 
+
+The publication.json mapping file references a 'folding' analyzer, which is also defined in settings.json. The asciifolding filter it uses is built into elasticsearch already.
 
 ### Setting up the faceted browser
 

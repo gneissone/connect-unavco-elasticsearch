@@ -2,130 +2,130 @@
   "dataset": {
     "properties": {
       "title": {
-        "type": "string",
-        "index": "analyzed",
+        "type": "text",
+        "index": "true",
         "fields": {
             "exact": {
-              "type": "string",
-              "index": "not_analyzed"
+              "type": "keyword",
+              "index": "true"
             }
           }
       },
       "label": {
-        "type": "string"
+        "type": "text"
       },
       "abstract": {
-        "type": "string"
+        "type": "text"
       },
       "authors":{
         "properties":{
           "name":{
-            "type":"multi_field",
+            "type":"keyword",
             "fields":{
               "name":{
-                "type":"string",
-                "index":"analyzed"
+                "type":"keyword",
+                "index":"true"
               },
               "exact":{
-                "type":"string",
-                "index":"not_analyzed"
+                "type":"keyword",
+                "index":"true"
               },
               "folded":{
-                "type":"string",
+                "type":"text",
                 "analyzer":"folding",
-                "index":"analyzed"
+                "index":"true"
               }
             }
           },
           "researchArea":{
-            "type":"multi_field",
+            "type":"keyword",
             "fields": {
               "researchArea": {
-                "type": "string",
-                "index": "analyzed"
+                "type": "keyword",
+                "index": "true"
               },
               "exact": {
-                "type": "string",
-                "index": "not_analyzed"
+                "type": "keyword",
+                "index": "true"
               }
             }
           },
           "uri":{
-            "type":"string",
-            "index": "not_analyzed"
+            "type":"keyword",
+            "index": "true"
           },
           "organization":{
             "properties": {
               "name": {
-                "type": "multi_field",
+                "type": "text",
                 "fields": {
                   "name": {
-                    "type": "string",
-                    "index": "analyzed"
+                    "type": "text",
+                    "index": "true"
                   },
                   "exact": {
-                    "type": "string",
-                    "index": "not_analyzed"
+                    "type": "text",
+                    "index": "true"
                   }
                 }
+              },
+              "uri":{
+                "type":"keyword",
+                "index": "true"
               }
-            },
-            "uri":{
-              "type":"string",
-              "index": "not_analyzed"
             }
           },
           "rank": {
-            "type": "string"
+            "type": "keyword"
           }
         }
       },
       "dataTypes": {
         "properties": {
           "name":{
-            "type":"multi_field",
+            "type":"text",
             "fields":{
               "name":{
-                "type":"string",
-                "index":"analyzed"
+                "type":"text",
+                "index":"true"
               },
               "exact":{
-                "type":"string",
-                "index":"not_analyzed"
+                "type":"text",
+                "index":"true"
               }
             }
           },
           "uri":{
-            "type":"string",
-            "index": "not_analyzed"
+            "type":"keyword",
+            "index": "true"
           }
         }
       },
       "citations": {
         "properties": {
           "name": {
-            "type": "string",
-            "index": "not_analyzed"
+            "type": "keyword",
+            "index": "true"
           },
           "uri": {
-            "type": "string",
-            "index": "not_analyzed"
+            "type": "keyword",
+            "index": "true"
           }
         }
       },
       "doi": {
-        "type": "string",
+        "type": "text",
         "index":"not_analyzed"
       },
       "mostSpecificType": {
-        "type": "string",
-        "index":"not_analyzed"
+        "type": "keyword",
+        "index":"true"
       },
       "publicationYear": {
         "type": "date"
       },
       "uri": {
-        "type": "string"
+        "type": "keyword"
       }
     }
   }
