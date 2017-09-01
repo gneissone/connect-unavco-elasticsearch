@@ -1,9 +1,11 @@
 # connect-unavco-elasticsearch
-Faceted Search using ElasticSearch for [Connect UNAVCO](http://connect.unavco.org), based on  [dco-elasticsearch](https://github.com/tetherless-world/dco-elasticsearch)
+Faceted Search using ElasticSearch for [Connect UNAVCO](http://connect.unavco.org), based on [dco-elasticsearch](https://github.com/tetherless-world/dco-elasticsearch)
+
+** NOTE!!! This experiment to support Elasticsearch 5 is still in progress. Not much will work here, yet. A lot has changed in Elasticsearch from version 1.x, so changes will need to be made to the configuration and mapping files, as well as significant changes to the facetview2 interface. **
 
 ## Overview
 
-The DCO faceted search browsers are powered by [FacetView2](https://github.com/tetherless-world/facetview2) - a pure javascript frontend for ElasticSearch search indices that let you easily embed a faceted browse front end into any web page.
+The faceted search browsers are powered by [FacetView2](https://github.com/tetherless-world/facetview2) - a pure javascript frontend for ElasticSearch search indices that let you easily embed a faceted browse front end into any web page.
 
 To configure a working faceted browser you need:
 1. A running instance of ElasticSearch with a populated index
