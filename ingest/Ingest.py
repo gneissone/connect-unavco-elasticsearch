@@ -165,18 +165,14 @@ class Ingest:
         # if configured to rebuild_index
         # Delete and then re-create to publication index (via PUT request)
 
-        index_url = self.es + "/" + self.get_index()
+        index_url = self.es + "/" + self.get_index() + "/" + self.get_type()
 
         if self.rebuild:
-            requests.delete(index_url)
-            r = requests.put(index_url)
-            if r.status_code != requests.codes.ok:
-                print(r.url, r.status_code)
-                r.raise_for_status()
+            r = requests.delete(index_url)
 
         # push current mapping
 
-        mapping_url = index_url + "/" + self.get_type() + "/_mapping"
+        mapping_url = index_url + "/_mapping"
         with open(self.mapping) as mapping_file:
             r = requests.put(mapping_url, data=mapping_file)
             if r.status_code != requests.codes.ok:
@@ -202,7 +198,6 @@ class Ingest:
         query = load_file(self.get_construct_query_file())
         query = query.replace(self.get_subject_name() + ' ', "<" + entity +
                               "> ")
-        print(query)
         return sparql_describe(self.endpoint, query)
 
     # construct_graph: helper function for populating the graph

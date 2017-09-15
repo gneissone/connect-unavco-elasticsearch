@@ -9,7 +9,7 @@ ofile=`date +"%Y%m%d-%H-%M-%S".people.bulk`
 
 cd /usr/local/scripts/connect-unavco-elasticsearch/ingest
 
-/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-people.py --limit 50000 --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --publish ${ofile} >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/people-ingest.log
+/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-people.py --limit 50000 --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --redbuild --publish ${ofile} >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/people-ingest.log
 
 gzip ${ofile}
 mv ${ofile}.gz /usr/local/scripts/connect-unavco-elasticsearch/ingest/backups
@@ -25,7 +25,7 @@ ofile=`date +"%Y%m%d-%H-%M-%S".grants.bulk`
 
 cd /usr/local/scripts/connect-unavco-elasticsearch/ingest 
 
-/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-grants.py --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/grants-ingest.log 
+/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-grants.py --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --rebuild  --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/grants-ingest.log 
 
 gzip $ofile
 mv $ofile.gz /usr/local/scripts/connect-unavco-elasticsearch/ingest/backups/
@@ -57,7 +57,7 @@ ofile=`date +"%Y%m%d-%H-%M-%S".publications.bulk`
 
 cd /usr/local/scripts/connect-unavco-elasticsearch/ingest 
 
-/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-publications.py --limit 50000 --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --altmetric --es http://localhost:9200 --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/publication-ingest.log
+/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-publications.py --limit 50000 --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --altmetric --es http://localhost:9200 --rebuild --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/publication-ingest.log
 
 gzip $ofile
 mv $ofile.gz /usr/local/scripts/connect-unavco-elasticsearch/ingest/backups/
@@ -73,7 +73,7 @@ ofile=`date +"%Y%m%d-%H-%M-%S".places.bulk`
 
 cd /usr/local/scripts/connect-unavco-elasticsearch/ingest 
 
-/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-stations.py --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/station-ingest.log
+/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-stations.py --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --rebuild --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/station-ingest.log
 
 gzip $ofile
 
@@ -88,7 +88,7 @@ ofile=`date +"%Y%m%d-%H-%M-%S".dataset.bulk`
 
 cd /usr/local/scripts/connect-unavco-elasticsearch/ingest 
 
-/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-datasets.py --limit 50000 --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/dataset-ingest.log
+/usr/local/bin/python3 /usr/local/scripts/connect-unavco-elasticsearch/ingest/ingest-datasets.py --limit 50000 --threads 4 --sparql http://vivodev.int.unavco.org/vivo/api/sparqlQuery --es http://localhost:9200 --rebuild --publish $ofile >> /usr/local/scripts/connect-unavco-elasticsearch/ingest/logs/dataset-ingest.log
 
 gzip $ofile
 
