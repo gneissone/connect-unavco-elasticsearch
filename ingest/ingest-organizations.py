@@ -9,28 +9,33 @@ import pydoc
 from ingestHelpers import *
 from Ingest import *
 
-# Please follow the comments below to create, customize and run the ingest process in you case.
+# Please follow the comments below to create, customize and run the ingest
+# process in you case.
 
-# Start by create a copy of this script and rename it as appropriate. A uniform nomenclature is
-# ingest-x.py where x is the plural form of the 'type' of search document generated.
+# Start by create a copy of this script and rename it as appropriate.
+# A uniform nomenclature is ingest-x.py where x is the plural form of the
+# 'type' of search document generated.
 
 # First, change these case-varying variables below for: dataset ingest
 
 LIST_QUERY_FILE = "queries/listOrganizations.rq"
 DESCRIBE_QUERY_FILE = "queries/describeOrganization.rq"
+CONSTRUCT_QUERY_FILE = "queries/constructOrganization.rq"
 SUBJECT_NAME = "?organization"
 INDEX = "unavco"
 TYPE = "organization"
 MAPPING = "mappings/organization.json"
 
-# Second, extend the Ingest base class to class 'XIngest' below, where X is the singular form, with capitalized
-# initial letter, of the 'type' of search document generated. E.g. DatasetIngest, ProjectIngest, etc.
-# Overwrite the subclass attribute 'MAPPING' and the create_x_doc method with appropriate implementations.
-# (Existing examples are helpful.)
+# Second, extend the Ingest base class to class 'XIngest' below, where X is
+# the singular form, with capitalized initial letter, of the 'type' of search
+# document generated. E.g. DatasetIngest, ProjectIngest, etc.
+# Overwrite the subclass attribute 'MAPPING' and the create_x_doc method with
+# appropriate implementations. (Existing examples are helpful.)
+
 
 class OrganizationIngest(Ingest):
 
-    def get_mapping( self ):
+    def get_mapping(self):
         return MAPPING
 
     def get_list_query_file(self):
@@ -39,9 +44,8 @@ class OrganizationIngest(Ingest):
     def get_describe_query_file(self):
         return DESCRIBE_QUERY_FILE
 
-    # The query is small enough that we can use the DESCRIBE version without breaking things
     def get_construct_query_file(self):
-        return DESCRIBE_QUERY_FILE
+        return CONSTRUCT_QUERY_FILE
 
     def get_subject_name(self):
         return SUBJECT_NAME
@@ -52,15 +56,14 @@ class OrganizationIngest(Ingest):
     def get_type(self):
         return TYPE
 
-    def create_document( self, entity ):
-        #graph = self.describe_entity( entity )
-        #print(graph.serialize(format='turtle'))
-        ds = self.graph.resource( entity )
+    def create_document(self, entity):
+        graph = self.describe_entity(entity)
+        ds = graph.resource(entity)
 
         try:
             title = ds.label().toPython()
         except AttributeError:
-            print( "missing title:", entity )
+            print("missing title:", entity)
             return {}
 
         doc = {"uri": entity, "name": title, "label": title}
@@ -88,7 +91,7 @@ class OrganizationIngest(Ingest):
         super_orgs = get_super_orgs(ds)
         doc.update({"superOrgs": super_orgs})
 
-        #TODO add lookup state and country
+        # TODO add lookup state and country
         # authors: if none, will return an empty list []
         people = get_employees(ds)
         doc.update({"people": people})
@@ -106,7 +109,8 @@ class OrganizationIngest(Ingest):
         return doc
 
 
-# Third, pass the name of the sub-class just created above to argument 'XIngest=' below in the usage of main().
+# Third, pass the name of the sub-class just created above to argument
+# 'XIngest=' below in the usage of main().
 #       E.g. main(..., XIngest=DatasetIngest)
 if __name__ == "__main__":
     ingestSomething = OrganizationIngest()

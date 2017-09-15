@@ -12,8 +12,8 @@ from Ingest import *
 # Please follow the comments below to create, customize and run the ingest
 # process in you case.
 
-# Start by create a copy of this script and rename it as appropriate. A
-# uniform nomenclature is ingest-x.py where x is the plural form of the
+# Start by create a copy of this script and rename it as appropriate.
+# A uniform nomenclature is ingest-x.py where x is the plural form of the
 # 'type' of search document generated.
 
 # First, change these case-varying variables below for: dataset ingest
@@ -26,9 +26,9 @@ INDEX = "unavco"
 TYPE = "station"
 MAPPING = "mappings/station.json"
 
-# Second, extend the Ingest base class to class 'XIngest' below,
-# where X is the singular form, with capitalized initial letter, of the 'type'
-# of search document generated. E.g. DatasetIngest, ProjectIngest, etc.
+# Second, extend the Ingest base class to class 'XIngest' below, where X is
+# the singular form, with capitalized initial letter, of the 'type' of search
+# document generated. E.g. DatasetIngest, ProjectIngest, etc.
 # Overwrite the subclass attribute 'MAPPING' and the create_x_doc method with
 # appropriate implementations. (Existing examples are helpful.)
 
@@ -56,7 +56,8 @@ class StationIngest(Ingest):
         return TYPE
 
     def create_document(self, entity):
-        ds = self.graph.resource(entity)
+        graph = self.describe_entity(entity)
+        ds = graph.resource(entity)
 
         try:
             title = ds.label().toPython()
@@ -122,9 +123,9 @@ class StationIngest(Ingest):
         return doc
 
 
-# Third, pass the name of the sub-class just created above to
-# argument 'XIngest=' below in the usage of main().
-#       E.g. main(..., XIngest=StationIngest)
+# Third, pass the name of the sub-class just created above to argument
+# 'XIngest=' below in the usage of main().
+#       E.g. main(..., XIngest=DatasetIngest)
 if __name__ == "__main__":
     ingestSomething = StationIngest()
     ingestSomething.ingest()

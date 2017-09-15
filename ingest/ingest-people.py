@@ -9,10 +9,12 @@ import pydoc
 from ingestHelpers import *
 from Ingest import *
 
-# Please follow the comments below to create, customize and run the ingest process in you case.
+# Please follow the comments below to create, customize and run the ingest
+# process in you case.
 
-# Start by create a copy of this script and rename it as appropriate. A uniform nomenclature is
-# ingest-x.py where x is the plural form of the 'type' of search document generated.
+# Start by create a copy of this script and rename it as appropriate.
+# A uniform nomenclature is ingest-x.py where x is the plural form of the
+# 'type' of search document generated.
 
 # First, change these case-varying variables below for: dataset ingest
 
@@ -23,14 +25,16 @@ INDEX = "unavco"
 TYPE = "person"
 MAPPING = "mappings/person.json"
 
-# Second, extend the Ingest base class to class 'XIngest' below, where X is the singular form, with capitalized
-# initial letter, of the 'type' of search document generated. E.g. DatasetIngest, ProjectIngest, etc.
-# Overwrite the subclass attribute 'MAPPING' and the create_x_doc method with appropriate implementations.
-# (Existing examples are helpful.)
+# Second, extend the Ingest base class to class 'XIngest' below, where X is
+# the singular form, with capitalized initial letter, of the 'type' of search
+# document generated. E.g. DatasetIngest, ProjectIngest, etc.
+# Overwrite the subclass attribute 'MAPPING' and the create_x_doc method with
+# appropriate implementations. (Existing examples are helpful.)
+
 
 class PersonIngest(Ingest):
 
-    def get_mapping( self ):
+    def get_mapping(self):
         return MAPPING
 
     def get_list_query_file(self):
@@ -51,13 +55,16 @@ class PersonIngest(Ingest):
     def get_type(self):
         return TYPE
 
-    def create_document( self, entity ):
-        ds = self.graph.resource( entity )
+    def create_document(self, entity):
+        graph = self.describe_entity(entity)
+
+        ds = graph.resource(entity)
+        print(ds)
 
         try:
             title = ds.label().toPython()
         except AttributeError:
-            print( "missing title:", entity )
+            print("missing title:", entity)
             return {}
 
         doc = {"uri": entity, "name": title, "label": title}
@@ -98,19 +105,17 @@ class PersonIngest(Ingest):
         if thumbnail:
             doc.update({"thumbnail": thumbnail})
 
-
         thumbnail = get_thumbnail(ds)
         if thumbnail:
-            doc.update({"thumbnail": thumbnail})
-
-
+            doc.update({"thumbnail":
+                        thumbnail.replace('http://connect.unavco.org', '')})
 
         return doc
 
 
-
-# Third, pass the name of the sub-class just created above to argument 'XIngest=' below in the usage of main().
-#       E.g. main(..., XIngest=StationIngest)
+# Third, pass the name of the sub-class just created above to argument
+# 'XIngest=' below in the usage of main().
+#       E.g. main(..., XIngest=DatasetIngest)
 if __name__ == "__main__":
     ingestSomething = PersonIngest()
     ingestSomething.ingest()

@@ -9,10 +9,12 @@ import pydoc
 from ingestHelpers import *
 from Ingest import *
 
-# Please follow the comments below to create, customize and run the ingest process in you case.
+# Please follow the comments below to create, customize and run the ingest
+# process in you case.
 
-# Start by create a copy of this script and rename it as appropriate. A uniform nomenclature is
-# ingest-x.py where x is the plural form of the 'type' of search document generated.
+# Start by create a copy of this script and rename it as appropriate.
+# A uniform nomenclature is ingest-x.py where x is the plural form of the
+# 'type' of search document generated.
 
 # First, change these case-varying variables below for: dataset ingest
 
@@ -24,14 +26,16 @@ INDEX = "unavco"
 TYPE = "grant"
 MAPPING = "mappings/grant.json"
 
-# Second, extend the Ingest base class to class 'XIngest' below, where X is the singular form, with capitalized
-# initial letter, of the 'type' of search document generated. E.g. DatasetIngest, ProjectIngest, etc.
-# Overwrite the subclass attribute 'MAPPING' and the create_x_doc method with appropriate implementations.
-# (Existing examples are helpful.)
+# Second, extend the Ingest base class to class 'XIngest' below, where X is
+# the singular form, with capitalized initial letter, of the 'type' of search
+# document generated. E.g. DatasetIngest, ProjectIngest, etc.
+# Overwrite the subclass attribute 'MAPPING' and the create_x_doc method with
+# appropriate implementations. (Existing examples are helpful.)
+
 
 class GrantIngest(Ingest):
 
-    def get_mapping( self ):
+    def get_mapping(self):
         return MAPPING
 
     def get_list_query_file(self):
@@ -52,15 +56,14 @@ class GrantIngest(Ingest):
     def get_type(self):
         return TYPE
 
-    def create_document( self, entity ):
-        #graph = self.describe_entity( entity )
-        #input(graph.serialize(format='turtle'))
-        ds = self.graph.resource( entity )
+    def create_document(self, entity):
+        graph = self.describe_entity(entity)
+        ds = graph.resource(entity)
 
         try:
             title = ds.label().toPython()
         except AttributeError:
-            print( "missing title:", entity )
+            print("missing title:", entity)
             return {}
 
         doc = {"uri": entity, "title": title, "label": title}
@@ -83,9 +86,9 @@ class GrantIngest(Ingest):
             doc.update({"abstract": abstract})
 
         # PIs: if none, will return an empty list []
-        pi = get_pi(ds,VIVO.PrincipalInvestigatorRole)
+        pi = get_pi(ds, VIVO.PrincipalInvestigatorRole)
         doc.update({"principalInvestigator": pi})
-        copi = get_pi(ds,VIVO.CoPrincipalInvestigatorRole)
+        copi = get_pi(ds, VIVO.CoPrincipalInvestigatorRole)
         doc.update({"coPrincipalInvestigators": copi})
 
         # authors: if none, will return an empty list []
@@ -115,8 +118,8 @@ class GrantIngest(Ingest):
         return doc
 
 
-
-# Third, pass the name of the sub-class just created above to argument 'XIngest=' below in the usage of main().
+# Third, pass the name of the sub-class just created above to argument
+# 'XIngest=' below in the usage of main().
 #       E.g. main(..., XIngest=DatasetIngest)
 if __name__ == "__main__":
     ingestSomething = GrantIngest()

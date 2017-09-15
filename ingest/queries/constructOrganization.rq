@@ -1,94 +1,131 @@
-PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX xsd:   <http://www.w3.org/2001/XMLSchema#>
-PREFIX owl:   <http://www.w3.org/2002/07/owl#>
-PREFIX dc: <http://purl.org/dc/elements/1.1/>
-PREFIX dct: <http://purl.org/dc/terms/>
-PREFIX vivo: <http://vivoweb.org/ontology/core#>
-PREFIX vitro: <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#>
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-PREFIX bibo: <http://purl.org/ontology/bibo/>
-PREFIX ec: <https://library.ucar.edu/earthcollab/schema#>
-PREFIX vlocal: <http://connect.unavco.org/ontology/vlocal#> 
-PREFIX cito: <http://purl.org/spar/cito/>
-PREFIX obo:	<http://purl.obolibrary.org/obo/>
-PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX  wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX  vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX  vitro: <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#>
+PREFIX  cito: <http://purl.org/spar/cito/>
+PREFIX  dct:  <http://purl.org/dc/terms/>
+PREFIX  vlocal: <http://connect.unavco.org/ontology/vlocal#>
+PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX  bibo: <http://purl.org/ontology/bibo/>
+PREFIX  vivo: <http://vivoweb.org/ontology/core#>
+PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+PREFIX  foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX  ec:   <https://library.ucar.edu/earthcollab/schema#>
+PREFIX  dc:   <http://purl.org/dc/elements/1.1/>
 
-CONSTRUCT {
-?organization rdf:type foaf:Organization .
-?organization vitro:mostSpecificType ?mostSpecificType .
-?organization rdfs:label ?label .
-?organization obo:RO_0001025 ?state . 
-?state a vivo:StateOrProvince .
-?state rdfs:label ?stateLabel .
-?organization obo:RO_0001025 ?country . 
-?country rdfs:label ?countryLabel .
-?country a vivo:Country .
-  ?organization obo:RO_0000053 ?role . 
-  ?role vivo:roleContributesTo <http://connect.unavco.org/individual/org253530> .
-  ?organization vlocal:hasLiaison ?unavcoMemberRep .
-  ?organization vivo:relatedBy ?perrole .
-             ?perrole a vivo:Position .
-             ?perrole vivo:relates ?person .
-             ?person a foaf:Person .
-             ?perrole vivo:dateTimeInterval ?interval .
-            ?interval vivo:end ?end . 
-            ?organization obo:BFO_0000051 ?subOrg .
-            ?subOrg a foaf:Organization .
-            ?subOrg rdfs:label ?subOrgLabelzz .
-            ?organization obo:BFO_0000050 ?superOrg .
-            ?superOrg a foaf:Organization .
-            ?superOrg rdfs:label ?superOrgLabelzz .
-  
-}
-
-WHERE {
-  { ?organization rdf:type foaf:Organization .
-  ?organization vitro:mostSpecificType ?mostSpecificType .
-  ?organization rdfs:label ?label . }
-  
-  
-  
-  UNION { ?organization rdf:type foaf:Organization .
-      ?organization obo:RO_0001025 ?state . 
-      ?state rdfs:label ?stateLabel .
-      ?state a vivo:StateOrProvince . }
-      
-  UNION { ?organization rdf:type foaf:Organization .
-      ?organization obo:RO_0001025 ?country . 
-      ?country rdfs:label ?countryLabel .
-      ?country a vivo:Country . }      
-  UNION { 
-  ?organization rdf:type foaf:Organization .
-      ?organization obo:RO_0000053 ?role . 
-      ?role vivo:roleContributesTo <http://connect.unavco.org/individual/org253530> . }   
-  UNION {
-  ?organization rdf:type foaf:Organization .
-      ?organization vlocal:hasLiaison ?unavcoMemberRep .
-  }       
-  
-  UNION { ?organization rdf:type foaf:Organization .
-  ?organization vivo:relatedBy ?perrole .
-             ?perrole a vivo:Position .
-             ?perrole vivo:relates ?person .
-             ?person a foaf:Person }
-  UNION { ?organization rdf:type foaf:Organization .
-  ?organization vivo:relatedBy ?perrole .
-             ?perrole a vivo:Position .
-             ?perrole vivo:relates ?person .
-             ?person a foaf:Person .
-             ?perrole vivo:dateTimeInterval ?interval .
-            ?interval vivo:end ?end .   }       
-              
-             
-  UNION { ?organization rdf:type foaf:Organization .
-         ?organization obo:BFO_0000051 ?subOrg .
-         ?subOrg a foaf:Organization .
-         ?subOrg rdfs:label ?subOrgLabelzz .
+CONSTRUCT
+  {
+    ?organization rdf:type ?orgType .
+    ?orgType rdfs:label ?orgTypeLabel .
+    ?organization vitro:mostSpecificType ?mostSpecificType .
+    ?organization rdfs:label ?label .
+    ?organization obo:RO_0001025 ?state .
+    ?organization wgs84:lat ?orgLat .
+    ?organization wgs84:long ?orgLon .
+    ?organization vlocal:isni ?isni .
+    ?organization vivo:gridId ?grid .
+    ?state rdf:type vivo:StateOrProvince .
+    ?state rdfs:label ?stateLabel .
+    ?organization obo:RO_0001025 ?country .
+    ?country rdfs:label ?countryLabel .
+    ?country rdf:type vivo:Country .
+    ?organization obo:RO_0000053 ?role .
+    ?role rdf:type ?roleType .
+    ?role vivo:roleContributesTo <http://connect.unavco.org/individual/org253530> .
+    ?organization vlocal:hasLiaison ?unavcoMemberRep .
+    ?organization vivo:relatedBy ?perrole .
+    ?perrole rdf:type vivo:Position .
+    ?perrole vivo:relates ?person .
+    ?person rdf:type foaf:Person .
+    ?person rdfs:label ?personLabel .
+    ?perrole vivo:dateTimeInterval ?interval .
+    ?interval vivo:end ?end .
+    ?organization obo:BFO_0000051 ?subOrg .
+    ?subOrg rdf:type foaf:Organization .
+    ?subOrg rdfs:label ?subOrgLabelzz .
+    ?organization obo:BFO_0000050 ?superOrg .
+    ?superOrg rdf:type foaf:Organization .
+    ?superOrg rdfs:label ?superOrgLabelzz .
   }
-  UNION { ?organization rdf:type foaf:Organization .
-      ?organization obo:BFO_0000050 ?superOrg .
-      ?superOrg a foaf:Organization .
-      ?superOrg rdfs:label ?superOrgLabelzz .
+WHERE
+  {   { ?organization
+                  rdf:type              foaf:Organization ;
+                  rdf:type              ?orgType .
+        ?orgType  rdfs:label            ?orgTypeLabel .
+        ?organization
+                  vitro:mostSpecificType  ?mostSpecificType ;
+                  rdfs:label            ?label
+      }
+    UNION
+      { ?organization
+                  rdf:type        foaf:Organization ;
+                  obo:RO_0001025  ?state .
+        ?state    rdfs:label      ?stateLabel ;
+                  rdf:type        vivo:StateOrProvince
+      }
+    UNION
+      { ?organization
+                  rdf:type    foaf:Organization ;
+                  wgs84:lat   ?orgLat ;
+                  wgs84:long  ?orgLon
+      }
+    UNION
+      { ?organization
+                  vlocal:isni ?isni ;
+                  vivo:gridId ?grid .
+    }
+    UNION
+      { ?organization
+                  rdf:type        foaf:Organization ;
+                  obo:RO_0001025  ?country .
+        ?country  rdfs:label      ?countryLabel ;
+                  rdf:type        vivo:Country
+      }
+    UNION
+      { ?organization
+                  rdf:type              foaf:Organization ;
+                  obo:RO_0000053        ?role .
+        ?role     vivo:roleContributesTo  <http://connect.unavco.org/individual/org253530> .
+        ?role rdf:type ?roleType
+      }
+    UNION
+      { ?organization
+                  rdf:type           foaf:Organization ;
+                  vlocal:hasLiaison  ?unavcoMemberRep
+      }
+    UNION
+      { ?organization
+                  rdf:type        foaf:Organization ;
+                  vivo:relatedBy  ?perrole .
+        ?perrole  rdf:type        vivo:Position ;
+                  vivo:relates    ?person .
+        ?person   rdf:type        foaf:Person ;
+                  rdfs:label      ?personLabel
+      }
+    UNION
+      { ?organization
+                  rdf:type              foaf:Organization ;
+                  vivo:relatedBy        ?perrole .
+        ?perrole  rdf:type              vivo:Position ;
+                  vivo:relates          ?person .
+        ?person   rdf:type              foaf:Person .
+        ?perrole  vivo:dateTimeInterval  ?interval .
+        ?interval  vivo:end             ?end
+      }
+    UNION
+      { ?organization
+                  rdf:type         foaf:Organization ;
+                  obo:BFO_0000051  ?subOrg .
+        ?subOrg   rdf:type         foaf:Organization ;
+                  rdfs:label       ?subOrgLabelzz
+      }
+    UNION
+      { ?organization
+                  rdf:type         foaf:Organization ;
+                  obo:BFO_0000050  ?superOrg .
+        ?superOrg  rdf:type        foaf:Organization ;
+                  rdfs:label       ?superOrgLabelzz
+      }
   }
-}
