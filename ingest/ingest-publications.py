@@ -26,7 +26,7 @@ SUBJECT_NAME = "?publication"
 INDEX = "unavco"
 TYPE = "publication"
 MAPPING = "mappings/publication.json"
-ALTMETRIC_API_KEY = '***REMOVED***'
+ALTMETRIC_API_KEY = 'YOUR_SECRET_KEY'
 
 
 def get_altmetric_for_doi(ALTMETRIC_API_KEY, doi):
